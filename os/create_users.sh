@@ -1,3 +1,4 @@
+#!/bin/bash
 
 cat ../users.txt | while read user 
 do
