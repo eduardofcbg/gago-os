@@ -1,1 +1,4 @@
-dashing
+blessed==1.17.11
+dashing==0.1.0
+six==1.15.0
+wcwidth==0.2.5

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-cat ../users.txt | while read user 
+cat ../config/users.txt | while read user 
 do
-   useradd -m $user
+   useradd -s /bin/bash -m $user
    echo "$user:$user" | chpasswd
    passwd --expire $user
 done

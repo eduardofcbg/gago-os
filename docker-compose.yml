@@ -1,0 +1,18 @@
+---
+version: "3.7"
+services:
+  gago:
+    tty: true
+    stdin_open: true
+    build:
+      context: .
+    ports:
+      - "2222:22"
+    environment:
+      - PASS=${PASSWORD}
+    volumes:
+      - ./home:/home
+      - ./leaderboard:/leaderboard
+      - ./setup:/setup
+      - ./config:/config
+    restart: always
