@@ -3,7 +3,7 @@ from operator import itemgetter
 
 from dashing import VSplit, HGauge
 
-def display(scores):
+def create_ui(scores):
 	sorted_scores = sorted(scores.items(), key=itemgetter(1), reverse=True)
 
 	gauges = (
@@ -11,8 +11,7 @@ def display(scores):
 		for name, score in sorted_scores
 	)
 
-	ui = VSplit(*gauges)
-	ui.display()
+	return VSplit(*gauges)
 
 
 if __name__ == '__main__':
@@ -26,4 +25,5 @@ if __name__ == '__main__':
 			'lixo': random.choice([20, 30, 10, 50, 32]),
 		}
 
-		display(scores)
+		ui = create_ui(scores)
+		ui.display()

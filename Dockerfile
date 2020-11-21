@@ -6,6 +6,8 @@ RUN yes | unminimize
 RUN apt-get update && \
     apt-get install -y openssh-server tree vim nano htop tar man sudo adduser less
 
+COPY ./etc/vim/vimrc.local /etc/vim/vimrc.local
+
 RUN mkdir /var/run/sshd /root/.ssh
 
 RUN sed -ri 's/^#?PermitRootLogin\s+.*/PermitRootLogin yes/' /etc/ssh/sshd_config && \

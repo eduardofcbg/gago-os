@@ -4,7 +4,7 @@ echo root:${PASS} | chpasswd
 
 if [ -s /opt/etc/passwd ]
 then
-	echo "Restoring users"
+   echo "Restoring users"
    /scripts/restore_users.sh
 fi
 
@@ -18,5 +18,3 @@ do
       passwd --expire $user
    fi
 done
-
-/scripts/save_users.sh

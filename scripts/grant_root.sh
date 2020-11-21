@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cat /config/$1 | while read user 
+cat /config/users.txt | while read user 
 do
    usermod -aG sudo $user
 done
