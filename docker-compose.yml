@@ -13,6 +13,11 @@ services:
     volumes:
       - ./home:/home
       - ./leaderboard:/leaderboard
-      - ./setup:/setup
+      - ./scripts:/scripts
       - ./config:/config
+      - ./etc/passwd:/opt/etc/passwd
+      - ./etc/shadow:/opt/etc/shadow
+      - ./etc/group:/opt/etc/group
+      - ./etc/gshadow:/opt/etc/gshadow
+      - ./snapshots:/snapshots
     restart: always
