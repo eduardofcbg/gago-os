@@ -19,5 +19,7 @@ COPY ./leaderboard/requirements.txt /leaderboard/
 RUN apt-get install -y python3-pip && \
     pip3 install -r /leaderboard/requirements.txt
 
+STOPSIGNAL SIGINT
+
 COPY entrypoint.sh /root
 CMD ["/root/entrypoint.sh"]
