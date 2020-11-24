@@ -16,6 +16,6 @@ echo "Starting sshd"
 trap stop SIGINT SIGTERM
 
 /usr/sbin/sshd -D -e & pid="$!"
-mkdir -p /var/run/sshd && echo "${pid}" > /var/run/sshd/sshd.pid
+echo "${pid}" > /var/run/sshd/sshd.pid
 wait "${pid}" && exit $?
 
