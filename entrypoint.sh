@@ -18,4 +18,3 @@ trap stop SIGINT SIGTERM
 /usr/sbin/sshd -D -e & pid="$!"
 echo "${pid}" > /var/run/sshd/sshd.pid
 wait "${pid}" && exit $?
-
