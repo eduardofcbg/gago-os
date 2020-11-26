@@ -14,7 +14,6 @@ do
 
    if [ $? -eq 0 ]
    then
-      echo "$user:$user" | chpasswd
-      passwd --expire $user
+      /scripts/reset_password.sh $user
    fi
 done
