@@ -1,7 +1,5 @@
 #!/bin/bash
 
-/scripts/setup_users.sh
-
 stop() {
   echo "Received SIGINT or SIGTERM. Will shut down $DAEMON"
     
@@ -9,6 +7,8 @@ stop() {
   kill -SIGTERM "${pid}"
   wait "${pid}"
 }
+
+/scripts/setup_users.sh
 
 echo "Starting sshd"
 trap stop SIGINT SIGTERM
