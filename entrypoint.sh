@@ -18,4 +18,5 @@ echo "${pid}" > /var/run/sshd/sshd.pid
 wait "${pid}" && sshd_exit_code=$?
 
 /scripts/save_users.sh
+
 exit $sshd_exit_code
