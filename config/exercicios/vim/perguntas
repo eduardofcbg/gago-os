@@ -1,0 +1,11 @@
+. Consulta todos os ficheiros na root do sistema operativo
+. Entra dentro da pasta "config" localizada na root do sistema
+. Copia o ficheiro "tonecas" que está dentro da pasta "base" para a tua "home"
+. Proíbe os outros usuários lerem o teu ficheiro "tonecas".
+. O ficheiro tonecas tem erros. Abre o ficherio com o vim para corrigir esses erros.
+. Só pode existir 1 espaço entre o título "As Lições do Tonecas" e o subtítulo
+. O subtítulo tem espaços a mais entre a palavra "Primeira" e "Lição"
+. No final do ficheiro corrige a palavra "Fim" para ser em maiusculas. Qual foi o comando que usaste para navegar até ao final do ficheiro?
+. Substitui todas as ocurrencias da palavra "Senhor" por "senhor" (procura no google o comando mais rápido)
+. Quantas vezes foi escrito o nome Tonecas com a primeira letra em minúsculo?
+. Corrige todas as vezes que o nome próprio Tonecas não é escrito com letra maiúscula. Utilza o atalho de conversão em maíusculo e o atalho de repetição do comando anterior.

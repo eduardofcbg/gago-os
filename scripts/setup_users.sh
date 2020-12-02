@@ -4,7 +4,6 @@ echo root:${PASS} | chpasswd
 
 if [ -s /opt/etc/passwd ]
 then
-   echo "Restoring users"
    /scripts/restore_users.sh
 fi
 

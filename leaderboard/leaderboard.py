@@ -1,29 +1,41 @@
 from time import sleep
 from operator import itemgetter
 
-from dashing import VSplit, HGauge
+from dashing import VSplit, HSplit, HGauge
+
+from users import get_users
+from score import get_score
+
+def chunks(l, n):
+  for i in range(n):
+      yield l[i::n]
 
 def create_ui(scores):
   sorted_scores = sorted(scores.items(), key=itemgetter(1), reverse=True)
 
-  gauges = (
+  gauges = [
     HGauge(val=score, title=name, border_color=5)
     for name, score in sorted_scores
+  ]
+
+  max_height = 20
+  number_columns = int(len(gauges) / max_height) + 1
+
+  columns = (
+    VSplit(*chunk)
+    for chunk in chunks(gauges, number_columns)
   )
 
-  return VSplit(*gauges)
+  return HSplit(*columns)
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':    
   while True:
     sleep(1)
-    # scores = score_users()
-
-    import random
-    scores = {
-      'eduardo': random.choice([20, 30, 10, 50, 32]),
-      'lixo': random.choice([20, 30, 10, 50, 32]),
-    }
+    
+    scores = {}
+    for user in get_users():
+      scores[user] = get_score(user)
 
     ui = create_ui(scores)
     ui.display()

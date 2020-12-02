@@ -1,10 +1,10 @@
 FROM ubuntu:20.04
-MAINTAINER Eduardo Gonçalves "https://github.com/eduardofcbg"
+MAINTAINER Eduardo Gonçalves "https://github.com/eduardofcgo"
 
 RUN yes | unminimize
 
 RUN apt-get update && \
-    apt-get install -y openssh-server tree vim nano htop tar man sudo adduser less
+    apt-get install -y openssh-server tree vim htop tar man sudo adduser less
 
 COPY ./etc/vim/vimrc.local /etc/vim/vimrc.local
 
