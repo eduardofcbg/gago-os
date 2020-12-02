@@ -31,10 +31,7 @@ if __name__ == "__main__":
     while True:
         sleep(1)
 
-        scores = {
-          user: get_score(user)
-          for user in get_users()
-        }
+        scores = {user: get_score(user) for user in get_users()}
 
         ui = create_ui(scores)
         ui.display()
