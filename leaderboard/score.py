@@ -35,4 +35,7 @@ def get_score(user):
 
     diff_lines = get_diff_lines(working_file)
 
-    return 100 * (1 - diff_lines / initial_diff_lines)
+    score = 100 * (1 - diff_lines / initial_diff_lines)
+
+    return max(score, 5)
+
