@@ -1,10 +1,12 @@
+import sys
 from time import sleep
 from operator import itemgetter
 
 from dashing import VSplit, HSplit, HGauge
 
 from users import get_users
-from score import get_score
+from exercises.vim import get_score as get_score_vim
+from exercises.navigation import get_score as get_score_navigation
 
 
 def chunks(l, n):
@@ -27,12 +29,20 @@ def create_ui(scores):
     return HSplit(*columns)
 
 
+score_exercise = {"vim": get_score_vim, "navigation": get_score_navigation}
+
 if __name__ == "__main__":
+    if len(sys.argv) == 1:
+        sys.exit(
+            f"Leaderboard must be for an exercise. For example {tuple(score_exercise)} as first argument."
+        )
+
+    exercise = sys.argv[1]
+
     while True:
         sleep(1)
 
-        scores = {user: get_score(user) for user in get_users()}        
-        
+        scores = {user: score_exercise[exercise](user) for user in get_users()}
+
         ui = create_ui(scores)
         ui.display()
-

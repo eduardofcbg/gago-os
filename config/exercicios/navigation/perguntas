@@ -1,0 +1,31 @@
+. Escreve "cd" para ires para a tua home.
+. Usa o comando "cat /config/exercicios/navigation/perguntas" para consultar as perguntas.
+. Cria uma pasta na tua home chamada "navigation"
+. Cria uma pasta "minha_pasta_favorita" na tua pasta "navigation"
+. Cria outra pasta "ficheiros_lixo" na tua pasta "navigation"
+. Entra na tua pata favorita.
+. Cria um ficheiro vazio dentro da pasta com o nome "documento_vazio1".
+. Consulta quais ficheiros existem na pasta onde estás.
+. Mostra o caminho completo da pasta onde estás.
+. Volta para a tua home.
+. Mostra o caminho completo da pasta onde estás.
+. Cria outro ficheiro vazio dentro da tua pasta favorita chamado "documento_secreto".
+. Consulta o documento que acabaste de criar.
+. Consulta quantos ficheiros tens na pasta "minha_pasta_favorita".
+. Proíbe os outros utilizadores de verem o "documento_secreto".
+. Entra de novo na pasta "minha_pasta_favorita". Cria duas cópias do "documento_secreto" chamada "documento_secreto2" e "documento_secreto3".
+. Volta a pasta "navigation".
+. Cria uma cópia do ficheiro "documento_vazio1" chamada "documento_vazio2" dentro da mesma pasta.
+. Consulta os ficheiros que estão na raíz do sistema operativo.
+. Na raíz existe uma pasta "config". Consulta dos ficheiros dentro da pasta "config".
+. Copia o ficheiro "agradecimento" para dentro da tua "navigation", mantém o mesmo nome. Podes encontrar esse ficheiro dentro na raíz, dentro da pasta "config", dentro de "base".
+. Lista todos os ficheiros e pastas dentro da tua "navigation".
+. Consulta o ficheiro "agradecimento" que acabaste de copiar para a tua pasta "navigation".
+. Duplica o ficheiro "agradecimento" para outro chamado "agradecimento-minha-copia", na mesma localização.
+. Muda o nome do ficheiro "agradecimento-minha-copia" para "agradecimento_copia"
+. Duplica a pasta "minha_pasta_favorita" com o nome "minha_pasta_favorita_copia"
+. Apaga o "documento_vazio1" dentro da tua pasta "minha_pasta_favorita_copia"
+. Usa o comando tree na tua home para ver a árvore.
+. Entra na pasta "navigation" que está na pasta "exercicios", dentro da "config", que está na raíz.
+. Consulta os ficheiros e pastas dentro da "navigation".
+. O que encontraste? Conseguias resolver todas estas perguntas com apenas um comando?
