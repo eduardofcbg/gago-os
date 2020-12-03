@@ -46,3 +46,4 @@ if __name__ == "__main__":
 
         ui = create_ui(scores)
         ui.display()
+

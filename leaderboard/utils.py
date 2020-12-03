@@ -20,3 +20,7 @@ def run_command(command):
 
 def file_exists(file_path):
     return path.exists(file_path)
+
+def dir_exists(dir_path):
+    return path.isdir(dir_path)
+
