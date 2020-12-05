@@ -41,9 +41,9 @@ if __name__ == "__main__":
     score = score_exercise[exercise]
 
     while True:
-        sleep(1)
-
         scores = {user: score(user) for user in get_users()}
 
         ui = create_ui(scores)
         ui.display()
+        
+        sleep(1)
