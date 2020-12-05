@@ -1,4 +1,4 @@
 #!/bin/bash
 
-NOW=$(date +"%m-%d-%Y_%T")
+NOW=$(date +"%d-%m-%Y_%T")
 cp -a /home/. /snapshots/${NOW}
