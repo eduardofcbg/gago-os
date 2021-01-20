@@ -4,7 +4,7 @@ MAINTAINER Eduardo Gonçalves "https://github.com/eduardofcgo"
 RUN yes | unminimize
 
 RUN apt-get update && \
-    apt-get install -y openssh-server tree vim htop tar man sudo adduser less
+    apt-get install -y openssh-server tree vim nano zip unzip htop tar man sudo adduser less
 
 COPY ./etc/vim/vimrc.local /etc/vim/vimrc.local
 
@@ -18,8 +18,6 @@ EXPOSE 22
 COPY ./leaderboard/requirements.txt /leaderboard/
 RUN apt-get install -y python3-pip && \
     pip3 install -r /leaderboard/requirements.txt
-
-RUN apt-get install nano zip unzip
 
 COPY entrypoint.sh /root
 CMD ["/root/entrypoint.sh"]
