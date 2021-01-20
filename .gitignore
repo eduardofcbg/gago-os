@@ -1,6 +1,12 @@
 home
 snapshots
 
+.env
+etc/group
+etc/gshadow
+etc/passwd
+etc/shadow
+
 .DS_Store
 
 __pycache__/
