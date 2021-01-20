@@ -1,0 +1,10 @@
+1. Crie uma pasta chamada "scripting1" na sua home. O trabalho irá ser feito dentro desta pasta
+2. Crie 100 ficheiros com o nome "ficheiro1", "ficheiro2", "ficheiro3", "ficheiro4"...
+3. Cada ficheiro deve ter conteúdo. O "ficheiro1": "contedo do meu ficheiro 1", "ficheiro2": "conteudo do meu ficheiro 2"...
+4. Crie um ficheiro chamado "tudo_junto", que tem o conteúdo de todos os ficheiros juntos. Cada linha do ficheiro deverá conter o conteudo de cada ficheiro. Desta forma:
+   "conteudo do meu ficheiro 1
+    conteudo do meu ficheiro 2
+    conteudo do meu....." 
+5. Crie um ficheiro zip chamado "tudo_guardado.zip" com todos os 100 ficheiros (ficheiro1, ficheiro2, ficheiro3...)
+6. Apague os mesmos 100 ficheiros. Faça unzip ao ficheiro zip criado antes e veja o que acontece.
+

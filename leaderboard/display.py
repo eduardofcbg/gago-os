@@ -7,6 +7,7 @@ from dashing import VSplit, HSplit, HGauge
 from users import get_users
 from exercises.vim import get_score as get_score_vim
 from exercises.navigation import get_score as get_score_navigation
+from exercises.scripting1.score import get_score as get_score_scripting1
 
 
 def chunks(l, n):
@@ -29,7 +30,7 @@ def create_ui(scores):
     return HSplit(*columns)
 
 
-score_exercise = {"vim": get_score_vim, "navigation": get_score_navigation}
+score_exercise = {"vim": get_score_vim, "navigation": get_score_navigation, "scripting1": get_score_scripting1}
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:
