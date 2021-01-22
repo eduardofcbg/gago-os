@@ -19,7 +19,8 @@ def create_ui(scores):
     sorted_scores = sorted(scores.items(), key=itemgetter(1), reverse=True)
 
     gauges = [
-        HGauge(val=score, title=name, border_color=5, color=5) for name, score in sorted_scores
+        HGauge(val=score, title=name, border_color=5, color=5)
+        for name, score in sorted_scores
     ]
 
     max_height = 20
@@ -30,7 +31,11 @@ def create_ui(scores):
     return HSplit(*columns)
 
 
-score_exercise = {"vim": get_score_vim, "navigation": get_score_navigation, "scripting1": get_score_scripting1}
+score_exercise = {
+    "vim": get_score_vim,
+    "navigation": get_score_navigation,
+    "scripting1": get_score_scripting1,
+}
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:
@@ -46,5 +51,5 @@ if __name__ == "__main__":
 
         ui = create_ui(scores)
         ui.display()
-        
+
         sleep(1)
