@@ -19,7 +19,7 @@ def create_ui(scores):
     sorted_scores = sorted(scores.items(), key=itemgetter(1), reverse=True)
 
     gauges = [
-        HGauge(val=score, title=name, border_color=5) for name, score in sorted_scores
+        HGauge(val=score, title=name, border_color=5, color=5) for name, score in sorted_scores
     ]
 
     max_height = 20
