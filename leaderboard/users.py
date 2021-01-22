@@ -1,3 +1,4 @@
 def get_users():
     with open("/config/users.txt") as users_file:
-        return users_file.read().splitlines()
+        lines = (line.strip() for line in users_file.read().splitlines())
+        return (line for line in lines if line)
