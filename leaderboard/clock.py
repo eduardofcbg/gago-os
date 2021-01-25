@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 class Clock:
     def __init__(self):
         self.current_tick = 0
+        self.start_time = None
         self.delta = timedelta(seconds=1)
 
     def set_tick(self, tick):
@@ -16,7 +17,16 @@ class Clock:
         return self.delta.total_seconds()
 
     def tick(self, ticks=1):
+        if self.current_tick == 0:
+            self.start_time = datetime.now()
+
         self.current_tick = self.current_tick + ticks
+
+    def lag(self):
+        elapsed_goal = self.elapsed()
+        elapsed = datetime.now() - self.start_time
+
+        return (elapsed_goal - elapsed).total_seconds()
 
     def elapsed(self):
         return self.current_tick * self.delta

@@ -41,10 +41,11 @@ if __name__ == "__main__":
     clock.set_delta(seconds=1)
 
     while True:
+        clock.tick()
         scores = score(exercise)
 
         ui = create_ui(scores)
         ui.display()
 
-        sleep(clock.get_delta_seconds())
+        sleep(clock.get_delta_seconds() + clock.lag())
         clock.tick()

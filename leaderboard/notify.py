@@ -11,40 +11,38 @@ def merge_scores(accumulated_scores, scores):
     return {user: [*accumulated_scores[user], scores[user]] for user in scores}
 
 
-def get_score_events(previous_score, score):
+def get_score_event(previous_score, score):
     def finish():
         return previous_score < 100 and score == 100
 
     def setback():
         return score < previous_score
 
-    def archive():
+    def jump():
         return score > previous_score
 
     def start():
         return previous_score == 0 and score > 0 and score != 100
 
-    validate_event = zip(
-        ["finish", "setback", "archive", "start"], [finish, setback, archive, start]
-    )
-    matched_events = [
-        event_name for (event_name, is_event) in validate_event if is_event()
-    ]
-
-    return matched_events if matched_events else [None]
+    for event in [finish, setback, jump, start]:
+        if event():
+            return event.__name__
+    else:
+        return None
 
 
 def get_events(previous_scores, scores):
     return {
-        user: get_score_events(previous_scores[user], scores[user]) for user in scores
+        user: get_score_event(previous_scores[user], scores[user])
+        for user in scores
     }
 
 
 def get_event_history(accumulated_scores):
     def accumulate_events(acc, score_pair):
-        events = get_score_events(*score_pair)
+        event = get_score_event(*score_pair)
 
-        return [*acc, *events]
+        return [*acc, event]
 
     return {
         user: reduce(accumulate_events, zip(scores, scores[1::]), [])
@@ -52,91 +50,100 @@ def get_event_history(accumulated_scores):
     }
 
 
-def condense_events(scores, events_history, new_events, clock):
-    def get_users_matching(events, event):
-        return {user for (user, events) in events.items() if event in events}
+def create_notifications(events_history, new_events, previous_scores, new_scores, clock):
+    def winning_users():
+        max_score = max(new_scores.values())
+        return {
+            user
+            for (user, score) in new_scores.items()
+            if score > 0 and score == max_score
+        }
 
-    def get_finished_users(events):
-        return get_users_matching(events, "finish")
+    def get_users_by_event(event):
+        return {
+            user
+            for (user, user_event) in new_events.items()
+            if event == user_event
+        }
 
-    def get_started_users(events):
-        return get_users_matching(events, "start")
+    def get_users_by_event_history(event):
+        return {
+            user
+            for (user, user_events) in events_history.items()
+            if event in user_events
+        }
 
-    def handle_finish_event():
-        previous_finish_count = len(get_finished_users(events_history))
-        finished_users = get_finished_users(new_events)
+    user_notifications = {}
 
-        finish_event = "win" if previous_finish_count < 3 else "finish"
-        finish_place = previous_finish_count + 1
+    if (
+        clock.current_tick != 0
+        and clock.current_tick % clock.tick_for(minutes=20) == 0
+    ):
+        for user in winning_users():
+            user_notifications[user] = "winning"
 
-        if len(finished_users) > 1:
-            return {
-                f"{finish_event}-draw": {
-                    "users": finished_users,
-                    "place": finish_place,
-                }
-            }
-        elif finished_users:
-            return {
-                finish_event: {
-                    "user": one(finished_users),
-                    "place": finish_place,
-                }
-            }
+    for (user, score) in new_scores:
+        last_previous = previous_scores[user][-1]
 
-    def handle_start_event():
-        started_users = get_started_users(events_history)
-        new_started_users = get_started_users(new_events)
-        if not started_users and new_started_users:
-            return {"start": {"users": new_started_users}}
+        if score < last_previous:
+            user_notifications[user] = "setback"
 
-    def handle_setback_event():
-        setback_users = get_users_matching(events_history, "setback")
-        if setback_users:
-            return {"setback": {"users": setback_users}}
+        if last_previous < 100 and score == 100:
+            user_notifications[user] = "finish"
 
-    def do_every_20_minutes():
-        if clock.tick_for(minutes=20) % clock.current_tick == 0:
-            # TODO
-            pass
+    # for user in get_users_by_event("setback"):
+    #     user_notifications[user] = "setback"
 
-    
+    if not get_users_by_event_history("start"):
+        for user in get_users_by_event("start"):
+            user_notifications[user] = "start"
 
-    condensed_events = {}
+    previous_finish_count = len(get_users_by_event_history("finish"))
+    finish_place = previous_finish_count + 1
 
-    for events in [
-        handle_finish_event(),
-        handle_start_event(),
-        handle_setback_event(),
-        do_every_20_minutes(),
-    ]:
-        if events:
-            condensed_events = {**condensed_events, **events}
+    for user in get_users_by_event("finish"):
+        user_notification[user] = "win" if finish_place < 3 else "finish"
 
-    return condensed_events
+    return user_notifications
 
 
-if __name__ == "main":
+def notify(exercise):
+    clock = Clock()
+    clock.set_delta(seconds=2)
+
+    previous_scores = score(exercise)
+    scores_history = {
+        user: [score] for (user, score) in previous_scores.items()
+    }
+
+    while True:
+        clock.tick()
+
+        new_scores = score(exercise)
+
+        events_history = get_event_history(scores_history)
+        new_events = get_events(previous_scores, new_scores)
+        yield create_notifications(
+            events_history, new_events, previous_scores, new_scores, clock
+        )
+
+        previous_scores = new_scores
+        scores_history = merge_scores(scores_history, new_scores)
+
+        sleep(clock.get_delta_seconds() + clock.lag())
+
+
+if __name__ == "__main__":
     if len(sys.argv) != 2:
-        sys.exit(f"Must specify exercise. For example 'navigation.py scripting1'.")
+        sys.exit(
+            f"Must specify exercise. For example 'navigation.py scripting1'."
+        )
 
     execise = sys.argv[1]
 
-    clock = Clock()
-    clock.set_delta(seconds=1)
+    for notifications in notify(execise):
+        from discord import notification_message
 
-    scores_history = {}
-    previous_scores = {}
-
-    while True:
-        scores = score(exercise)
-
-        events_history = get_event_history(scores_history)
-        new_events = get_events(previous_scores, scores)
-        events = condense_events(scores, events_history, new_events, clock)
-
-        previous_scores = scores
-        scores_history = merge_scores(scores_history, scores)
-
-        sleep(clock.get_delta_seconds())
-        clock.tick()
+        for (user, event) in notifications.items():
+            message = notification_message[event].format(user=user)
+            print(message)
