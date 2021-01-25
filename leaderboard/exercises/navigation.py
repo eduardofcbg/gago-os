@@ -11,13 +11,13 @@ solved_dir = "/config/exercicios/navigation/resolvido"
 max_diff_lines = 13
 
 
-def get_score(user):
+def score(user):
     work_dir = f"/home/{user}/navigation"
 
     if not dir_exists(work_dir):
         return 0
 
     diff_lines = get_diff_lines(work_dir, solved_dir)
-    score = 100 * (1 - diff_lines / max_diff_lines)
+    score = int(100 * (1 - diff_lines / max_diff_lines))
 
     return max(score, 1)

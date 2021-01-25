@@ -18,6 +18,10 @@ def run_command(command):
     return stdout
 
 
+def one(s):
+    return next(iter(s))
+
+
 def file_exists(file_path):
     return path.exists(file_path)
 
