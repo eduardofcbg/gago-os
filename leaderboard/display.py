@@ -4,10 +4,8 @@ from operator import itemgetter
 
 from dashing import VSplit, HSplit, HGauge
 
-from users import get_users
-from exercises.vim import get_score as get_score_vim
-from exercises.navigation import get_score as get_score_navigation
-from exercises.scripting1.score import get_score as get_score_scripting1
+from exercises.score import score
+from clock import Clock
 
 
 def chunks(l, n):
@@ -31,25 +29,23 @@ def create_ui(scores):
     return HSplit(*columns)
 
 
-score_exercise = {
-    "vim": get_score_vim,
-    "navigation": get_score_navigation,
-    "scripting1": get_score_scripting1,
-}
-
 if __name__ == "__main__":
-    if len(sys.argv) == 1:
+    if len(sys.argv) != 2:
         sys.exit(
-            f"Leaderboard must be for an exercise. For example {tuple(score_exercise)} as first argument."
+            f"Leaderboard must be for an exercise. For example 'display.py scripting1'."
         )
 
     exercise = sys.argv[1]
-    score = score_exercise[exercise]
+
+    clock = Clock()
+    clock.set_delta(seconds=1)
 
     while True:
-        scores = {user: score(user) for user in get_users()}
+        clock.tick()
+        scores = score(exercise)
 
         ui = create_ui(scores)
         ui.display()
 
-        sleep(1)
+        sleep(clock.get_delta_seconds() + clock.lag())
+        clock.tick()

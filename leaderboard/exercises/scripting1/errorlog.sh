@@ -21,4 +21,3 @@ echo "$concat_files" | diff -bBq - <(cat tudo_junto | sort)
 ls tudo_guardado.zip > /dev/null
 
 unzip -cq tudo_guardado.zip | diff -bBq - <(echo "$concat_files")
-

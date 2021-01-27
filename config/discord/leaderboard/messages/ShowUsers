@@ -1,0 +1,17 @@
+{% if user_discord_mention %}
+✅ **Utilizadores registados**
+{% for (user, mention) in user_discord_mention.items() %}
+{{user}} {{mention}}
+{% endfor %}
+{% endif %}
+
+{% if members_not_user %}
+❌ **Utilizadores não registados**
+{% for mention in members_not_user %} {{mention}}{% endfor %}
+{% endif %}
+
+
+{% if users_not_member %}
+✨ **Utilizadores disponíveis**
+{% for user in users_not_member %}{{user}} {% endfor %}
+{% endif %}

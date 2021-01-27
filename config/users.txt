@@ -10,7 +10,6 @@ luiz
 pipo
 pedro
 piedade
-flores
 ronaldo
 hacker
 rodrigo
@@ -20,5 +19,5 @@ oliveira
 tomaslopes
 renato
 gs
-demo
+eduardo
 neves

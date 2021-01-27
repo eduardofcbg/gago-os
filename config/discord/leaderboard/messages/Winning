@@ -1,0 +1,5 @@
+{% if users | length > 1 %}
+{% for user in users %}{{user | mention}} {% endfor %}continuam à frente! 💪	
+{% else %}
+{{users[0] | mention}} continua à frente! 💪
+{% endif %}
