@@ -10,6 +10,8 @@ services:
       - "2222:22"
     environment:
       - PASS=${PASSWORD}
+      - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
+      - TZ=Europe/London
     volumes:
       - ./home:/home
       - ./leaderboard:/leaderboard

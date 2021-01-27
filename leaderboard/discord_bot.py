@@ -1,13 +1,18 @@
+import os
 from typing import List, Dict
 from dataclasses import dataclass, asdict
 from functools import partial
 
 from jinja2 import Environment, DictLoader, FileSystemLoader
-from discord.ext.commands import Bot, Command
+from discord.ext.commands import Bot, Group, Command
 from discord import Intents
 
 from users import get_users as get_os_users
 from notify import pull_notifications
+from exercises.score import is_valid_exercise
+
+
+TOKEN = os.environ["DISCORD_BOT_TOKEN"]
 
 
 @dataclass
@@ -21,7 +26,7 @@ class Stop:
 
 
 @dataclass
-class UserSetup:
+class UserSet:
     user: str
 
 
@@ -30,6 +35,16 @@ class ShowUsers:
     user_discord_mention: Dict[str, str]
     users_not_member: List[str]
     members_not_user: List[str]
+
+
+@dataclass
+class SubcommandNotFound:
+    subcommand: str
+
+
+@dataclass
+class InvalidExercise:
+    exercise: str
 
 
 user_discord_member = {}
@@ -41,7 +56,6 @@ def mention(user):
     if discord_member:
         return discord_member.mention
     else:
-        print(f"User {user} is not registered as member")
         return user
 
 
@@ -61,13 +75,19 @@ def format(message):
     return template.render(message)
 
 
+async def gago(ctx, subcommand):
+    await ctx.reply(format(SubcommandNotFound(subcommand)))
+
+
 async def start(ctx, exercise):
     global notifications
 
-    if notifications:
-        print("Leaderboard already running")
-    else:
+    if not is_valid_exercise(exercise):
+        await ctx.reply(format(InvalidExercise(exercise)))
+
+    elif not notifications:
         await ctx.reply(format(Go()))
+
         notifications = pull_notifications(exercise)
 
         for notification in notifications:
@@ -80,16 +100,15 @@ async def stop(ctx):
     if notifications:
         notifications.close()
         notifications = None
+
         await ctx.reply(format(Stop()))
-    else:
-        print("No leaderboard running")
 
 
-async def setup_user(ctx, user):
+async def set_user(ctx, user):
     discord_member = ctx.message.author
     user_discord_member[user] = discord_member
 
-    message = UserSetup(user=user)
+    message = UserSet(user=user)
 
     await ctx.reply(format(message))
 
@@ -102,8 +121,7 @@ async def show_users(ctx):
         members_not_user = list(member.mention for member in ctx.guild.members)
 
         user_discord_mention = {
-            user: member.mention
-            for (user, member) in user_discord_member.items()
+            user: member.mention for (user, member) in user_discord_member.items()
         }
 
         message = ShowUsers(
@@ -119,34 +137,24 @@ intents = Intents.default()
 intents.members = True
 bot = Bot(intents=intents, command_prefix=("$", "!", "/"))
 
-bot.add_command(
+group = Group(gago, invoke_without_command=True)
+
+group.add_command(Command(start))
+group.add_command(Command(stop))
+group.add_command(
     Command(
-        stop,
-        name="stop-leaderboard",
-        aliases=("leaderboard-stop",),
+        set_user,
+        name="user",
+        aliases=("setuser",),
     )
 )
-bot.add_command(
-    Command(
-        start,
-        name="leaderboard",
-        aliases=("start-leaderboard", "leaderboard-start"),
-    )
-)
-bot.add_command(
-    Command(
-        setup_user,
-        name="leaderboard-user",
-        aliases=("user-leaderboard",),
-    )
-)
-bot.add_command(
+group.add_command(
     Command(
         show_users,
-        name="leaderboard-users",
-        aliases=("users-leaderboard",),
+        name="users",
+        aliases=("showusers",),
     )
 )
 
-token = "ODAzMjk4MTI4MDYwNDgxNTk2.YA7vrg.ZopTLhSNUNylq99aQeEIa-7r--c"
-bot.run(token)
+bot.add_command(group)
+bot.run(TOKEN)

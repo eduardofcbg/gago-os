@@ -48,7 +48,7 @@ def create_progress_notifications(new_scores, previous_scores, clock):
     def is_current_minute_multiple_of(*, minutes):
         return (
             clock.current_tick != 0
-            and clock.current_tick % clock.tick_for(minutes=1) == 0
+            and clock.current_tick % clock.tick_for(minutes=minutes) == 0
         )
 
     def winning_users():
@@ -78,16 +78,12 @@ def create_progress_notifications(new_scores, previous_scores, clock):
 def create_notifications(acc_notifications, new_scores, previous_scores, clock):
     def count_finish(notifications):
         return sum(
-            1
-            for notification in notifications
-            if isinstance(notification, Finish)
+            1 for notification in notifications if isinstance(notification, Finish)
         )
 
     def count_start(notifications):
         return sum(
-            1
-            for notification in notifications
-            if isinstance(notification, Start)
+            1 for notification in notifications if isinstance(notification, Start)
         )
 
     for notification in create_progress_notifications(
@@ -111,7 +107,7 @@ def create_notifications(acc_notifications, new_scores, previous_scores, clock):
 
 def pull_notifications(exercise):
     clock = Clock()
-    clock.set_delta(seconds=2)
+    clock.set_delta(seconds=5)
 
     acc_notifications = []
     previous_scores = score(exercise)
@@ -125,18 +121,16 @@ def pull_notifications(exercise):
         )
 
         acc_notifications.extend(notifications)
-        yield from notifications
-
         previous_scores = new_scores
+
+        yield from notifications
 
         sleep(clock.get_delta_seconds() + clock.lag())
 
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        sys.exit(
-            f"Must specify exercise. For example 'navigation.py scripting1'."
-        )
+        sys.exit(f"Must specify exercise. For example 'navigation.py scripting1'.")
 
     execise = sys.argv[1]
 
