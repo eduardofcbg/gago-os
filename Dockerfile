@@ -4,7 +4,7 @@ MAINTAINER Eduardo Gonçalves "https://github.com/eduardofcgo"
 RUN yes | unminimize
 
 RUN apt-get update && \
-    apt-get install -y openssh-server tree vim nano zip unzip htop tar man sudo adduser less
+    apt-get install -y openssh-server tree vim nano curl zip unzip htop tar man sudo adduser less
 
 COPY ./etc/vim/vimrc.local /etc/vim/vimrc.local
 

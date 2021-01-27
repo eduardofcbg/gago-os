@@ -1,134 +1,133 @@
 import sys
 from time import sleep
-from functools import reduce
+from dataclasses import dataclass
+from typing import List
 
-from utils import one
 from exercises.score import score
 from clock import Clock
 
 
-def merge_scores(accumulated_scores, scores):
-    return {user: [*accumulated_scores[user], scores[user]] for user in scores}
+@dataclass
+class Winning:
+    users: List[str]
 
 
-def get_score_event(previous_score, score):
-    def finish():
-        return previous_score < 100 and score == 100
-
-    def setback():
-        return score < previous_score
-
-    def jump():
-        return score > previous_score
-
-    def start():
-        return previous_score == 0 and score > 0 and score != 100
-
-    for event in [finish, setback, jump, start]:
-        if event():
-            return event.__name__
-    else:
-        return None
+@dataclass
+class Setback:
+    user: str
 
 
-def get_events(previous_scores, scores):
-    return {
-        user: get_score_event(previous_scores[user], scores[user])
-        for user in scores
-    }
+@dataclass
+class Finish:
+    user: str
 
 
-def get_event_history(accumulated_scores):
-    def accumulate_events(acc, score_pair):
-        event = get_score_event(*score_pair)
-
-        return [*acc, event]
-
-    return {
-        user: reduce(accumulate_events, zip(scores, scores[1::]), [])
-        for (user, scores) in accumulated_scores.items()
-    }
+@dataclass
+class FinishPlace:
+    user: str
+    place: int
 
 
-def create_notifications(events_history, new_events, previous_scores, new_scores, clock):
+@dataclass
+class Start:
+    user: str
+
+
+@dataclass
+class Headstart:
+    user: str
+
+
+@dataclass
+class Win:
+    user: str
+    place: int
+
+
+def create_progress_notifications(new_scores, previous_scores, clock):
+    def is_current_minute_multiple_of(*, minutes):
+        return (
+            clock.current_tick != 0
+            and clock.current_tick % clock.tick_for(minutes=1) == 0
+        )
+
     def winning_users():
         max_score = max(new_scores.values())
-        return {
+        return [
             user
             for (user, score) in new_scores.items()
             if score > 0 and score == max_score
-        }
+        ]
 
-    def get_users_by_event(event):
-        return {
-            user
-            for (user, user_event) in new_events.items()
-            if event == user_event
-        }
+    if is_current_minute_multiple_of(minutes=20):
+        yield Winning(users=winning_users())
 
-    def get_users_by_event_history(event):
-        return {
-            user
-            for (user, user_events) in events_history.items()
-            if event in user_events
-        }
+    for (user, score) in new_scores.items():
+        previous_score = previous_scores[user]
 
-    user_notifications = {}
+        if score < previous_score:
+            yield Setback(user)
 
-    if (
-        clock.current_tick != 0
-        and clock.current_tick % clock.tick_for(minutes=20) == 0
+        if previous_score < 100 and score == 100:
+            yield Finish(user)
+
+        if previous_score == 0 and score > 0 and score != 100:
+            yield Start(user)
+
+
+def create_notifications(acc_notifications, new_scores, previous_scores, clock):
+    def count_finish(notifications):
+        return sum(
+            1
+            for notification in notifications
+            if isinstance(notification, Finish)
+        )
+
+    def count_start(notifications):
+        return sum(
+            1
+            for notification in notifications
+            if isinstance(notification, Start)
+        )
+
+    for notification in create_progress_notifications(
+        new_scores, previous_scores, clock
     ):
-        for user in winning_users():
-            user_notifications[user] = "winning"
+        if isinstance(notification, Finish):
+            user = notification.user
+            place = count_finish(acc_notifications) + 1
+            if finish_count <= 3:
+                yield Win(user=user, place=place)
+            else:
+                yield FinishPlace(user=user, place=place)
 
-    for (user, score) in new_scores:
-        last_previous = previous_scores[user][-1]
+        elif isinstance(notification, Start):
+            if count_start(acc_notifications) == 0:
+                yield Headstart(user=notification.user)
 
-        if score < last_previous:
-            user_notifications[user] = "setback"
-
-        if last_previous < 100 and score == 100:
-            user_notifications[user] = "finish"
-
-    # for user in get_users_by_event("setback"):
-    #     user_notifications[user] = "setback"
-
-    if not get_users_by_event_history("start"):
-        for user in get_users_by_event("start"):
-            user_notifications[user] = "start"
-
-    previous_finish_count = len(get_users_by_event_history("finish"))
-    finish_place = previous_finish_count + 1
-
-    for user in get_users_by_event("finish"):
-        user_notification[user] = "win" if finish_place < 3 else "finish"
-
-    return user_notifications
+        else:
+            yield notification
 
 
-def notify(exercise):
+def pull_notifications(exercise):
     clock = Clock()
     clock.set_delta(seconds=2)
 
+    acc_notifications = []
     previous_scores = score(exercise)
-    scores_history = {
-        user: [score] for (user, score) in previous_scores.items()
-    }
 
     while True:
         clock.tick()
 
         new_scores = score(exercise)
-
-        events_history = get_event_history(scores_history)
-        new_events = get_events(previous_scores, new_scores)
-        yield create_notifications(
-            events_history, new_events, previous_scores, new_scores, clock
+        notifications = list(
+            create_notifications(acc_notifications, new_scores, previous_scores, clock)
         )
 
+        acc_notifications.extend(notifications)
+        yield from notifications
+
         previous_scores = new_scores
-        scores_history = merge_scores(scores_history, new_scores)
 
         sleep(clock.get_delta_seconds() + clock.lag())
 
@@ -141,9 +140,5 @@ if __name__ == "__main__":
 
     execise = sys.argv[1]
 
-    for notifications in notify(execise):
-        from discord import notification_message
-
-        for (user, event) in notifications.items():
-            message = notification_message[event].format(user=user)
-            print(message)
+    for notification in pull_notifications(execise):
+        print(notification)
