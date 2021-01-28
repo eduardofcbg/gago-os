@@ -1,4 +1,4 @@
-from asyncio import get_running_loop
+import asyncio
 from functools import wraps, partial
 from subprocess import Popen, PIPE
 from os import path
@@ -30,8 +30,8 @@ def dir_exists(dir_path):
 
 def run_in_executor(f):
     @wraps(f)
-    def inner(*args, **kwargs):
-        loop = get_running_loop()
+    def wrapped(*args, **kwargs):
+        loop = asyncio.get_running_loop()
         return loop.run_in_executor(None, partial(f, *args, **kwargs))
 
-    return inner
+    return wrapped

@@ -1,4 +1,5 @@
 import os
+import io
 from typing import List, Dict
 from operator import attrgetter, itemgetter
 from dataclasses import dataclass, asdict
@@ -77,7 +78,7 @@ def mention(user):
 
 
 @run_in_executor
-def build_chart(destination_file):
+def build_chart():
     def mention(user):
         discord_member = user_discord_member.get(user)
         if discord_member:
@@ -86,26 +87,21 @@ def build_chart(destination_file):
             return user
 
     scores = [
-        Score(user=mention(user), xp=score, place=i)
-        for (i, (user, score)) in enumerate(
+        Score(user=mention(user), xp=score, place=place)
+        for place, (user, score) in enumerate(
             sorted(get_score(exercise).items(), key=itemgetter(1)), 1
         )
     ]
 
-    sorted_scores = []
+    asc_scores = sorted(scores, key=attrgetter("xp"))
+    dsc_scores = asc_scores[::-1]
+    offset = 1 if len(asc_scores) % 2 == 0 else 0
+    centered_scores = asc_scores[1::2] + dsc_scores[offset::2]
 
-    for i, score in enumerate(
-        sorted(scores, key=attrgetter("xp"), reverse=True)
-    ):
-        if i % 2 == 0:
-            sorted_scores.append(score)
-        else:
-            sorted_scores.insert(0, score)
+    svg_chart = format(Chart(scores=centered_scores))
+    png_bytes = cairosvg.svg2png(bytestring=bytes(svg_chart, encoding="utf-8"))
 
-    svg_chart = format(Chart(scores=sorted_scores))
-    cairosvg.svg2png(
-        bytestring=bytes(svg_chart, encoding="utf-8"), write_to=destination_file
-    )
+    return png_bytes
 
 
 template_env = Environment(
@@ -174,8 +170,7 @@ async def show_users(ctx):
         members_not_user = list(member.mention for member in ctx.guild.members)
 
         user_discord_mention = {
-            user: member.mention
-            for (user, member) in user_discord_member.items()
+            user: member.mention for (user, member) in user_discord_member.items()
         }
 
         message = ShowUsers(
@@ -189,12 +184,10 @@ async def show_users(ctx):
 
 async def chart(ctx):
     async with ctx.typing():
-        with open(CHART_FILE_PATH, "wb") as chart_file:
-            await build_chart(chart_file)
+        png_bytes = await build_chart()
 
-        with open(CHART_FILE_PATH, "rb") as chart_file:
-            picture = File(chart_file)
-            await ctx.reply(file=picture)
+        picture = File(io.BytesIO(png_bytes), filename="chart.png")
+        await ctx.reply(file=picture)
 
 
 intents = Intents.default()
