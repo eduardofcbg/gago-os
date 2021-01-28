@@ -1,12 +1,14 @@
-import subprocess
+from asyncio import get_running_loop
+from functools import wraps, partial
+from subprocess import Popen, PIPE
 from os import path
 
 
 def run_command(command):
-    process = subprocess.Popen(
+    process = Popen(
         command,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        stdout=PIPE,
+        stderr=PIPE,
         shell=True,
         executable="/bin/bash",
     )
@@ -24,3 +26,12 @@ def file_exists(file_path):
 
 def dir_exists(dir_path):
     return path.isdir(dir_path)
+
+
+def run_in_executor(f):
+    @wraps(f)
+    def inner(*args, **kwargs):
+        loop = get_running_loop()
+        return loop.run_in_executor(None, partial(f, *args, **kwargs))
+
+    return inner

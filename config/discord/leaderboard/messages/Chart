@@ -1,0 +1,47 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="{{40 * scores | length + (70 - 40) * (scores | length - 1)}}" height="500" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style type="text/css"><![CDATA[
+      svg {
+        background-color: rgb(31, 34, 37)
+      }
+
+      .bar {
+        fill: rgb(240, 204, 79);
+      }
+
+      .user {
+        fill: white;
+        font: bold 10px sans-serif;
+      }
+
+      .score {
+        fill: rgb(167, 131, 62);
+        font: 10px sans-serif;
+      }
+
+      .level {
+        fill: rgb(167, 131, 62);
+        font: bold 12px sans-serif;
+      }
+    ]]></style>
+  </defs>
+  {% for score in scores %}
+    <g transform="translate({{(loop.index - 1) * 70}}, 0)">
+      <rect class="bar" width="40" height="{{score.xp * 4 + 5}}" y="{{ 500 - score.xp * 4 - 5 }}" x="0"></rect>
+      <polygon fill="rgb(244, 223, 160)" points="10 0,30 0,40 10,0 10" transform="translate(0, {{ 500 - score.xp * 4 - 5 - 10}})"></polygon>
+      
+      <text class="user" dx="20" text-anchor="middle" y="{{ 500 - score.xp * 4 - 5 - 20 }}">
+          {{score.user | mention}}
+      </text>
+      
+      {% if score.xp != 0 %}
+        <text class="score" dx="20" text-anchor="middle" y="{{ 500 - score.xp * 4 - 5 + 15 }}">{{score.xp}}xp</text>
+        {% if score.place <= 3 %}
+          <text class="level" dx="20" text-anchor="middle" y="{{ 500 - score.xp * 4 - 5 + 30 }}">#{{score.place}}</text>
+        {% endif %}
+      {% endif %}  
+    </g>
+  {% endfor %}
+</svg>
