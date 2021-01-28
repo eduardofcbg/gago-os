@@ -94,7 +94,9 @@ def build_chart(destination_file):
 
     sorted_scores = []
 
-    for i, score in enumerate(sorted(scores, key=attrgetter("xp"), reverse=True)):
+    for i, score in enumerate(
+        sorted(scores, key=attrgetter("xp"), reverse=True)
+    ):
         if i % 2 == 0:
             sorted_scores.append(score)
         else:
@@ -126,9 +128,6 @@ async def gago(ctx, subcommand):
     await ctx.reply(format(SubcommandNotFound(subcommand)))
 
 
-import asyncio
-
-
 async def start(ctx, _exercise):
     global notifications
     global exercise
@@ -140,7 +139,7 @@ async def start(ctx, _exercise):
         await ctx.reply(format(Go()))
 
         exercise = _exercise
-        notifications = asyncio.create_task(pull_notifications(exercise))
+        notifications = pull_notifications(exercise)
 
         async for notification in notifications:
             await ctx.send(format(notification))
@@ -175,7 +174,8 @@ async def show_users(ctx):
         members_not_user = list(member.mention for member in ctx.guild.members)
 
         user_discord_mention = {
-            user: member.mention for (user, member) in user_discord_member.items()
+            user: member.mention
+            for (user, member) in user_discord_member.items()
         }
 
         message = ShowUsers(
