@@ -38,7 +38,7 @@ if __name__ == "__main__":
     exercise = sys.argv[1]
 
     clock = Clock()
-    clock.set_delta(seconds=1)
+    clock.set_delta(seconds=5)
 
     while True:
         clock.tick()

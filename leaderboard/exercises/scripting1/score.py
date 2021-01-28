@@ -2,7 +2,9 @@ from utils import run_command
 
 
 def count_errors(work_dir):
-    command = f"/leaderboard/exercises/scripting1/errorlog.sh {work_dir} | wc -l"
+    command = (
+        f"/leaderboard/exercises/scripting1/errorlog.sh {work_dir} | wc -l"
+    )
 
     return int(run_command(command))
 

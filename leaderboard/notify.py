@@ -1,8 +1,9 @@
 import sys
-from time import sleep
+import asyncio
 from dataclasses import dataclass
 from typing import List
 
+from utils import run_in_executor
 from exercises.score import score
 from clock import Clock
 
@@ -78,12 +79,16 @@ def create_progress_notifications(new_scores, previous_scores, clock):
 def create_notifications(acc_notifications, new_scores, previous_scores, clock):
     def count_finish(notifications):
         return sum(
-            1 for notification in notifications if isinstance(notification, Finish)
+            1
+            for notification in notifications
+            if isinstance(notification, Finish)
         )
 
     def count_start(notifications):
         return sum(
-            1 for notification in notifications if isinstance(notification, Start)
+            1
+            for notification in notifications
+            if isinstance(notification, Start)
         )
 
     for notification in create_progress_notifications(
@@ -105,34 +110,49 @@ def create_notifications(acc_notifications, new_scores, previous_scores, clock):
             yield notification
 
 
-def pull_notifications(exercise):
+@run_in_executor
+def score_async(exercise):
+    return score(exercise)
+
+
+async def pull_notifications(exercise):
     clock = Clock()
     clock.set_delta(seconds=5)
 
+    running = True
     acc_notifications = []
-    previous_scores = score(exercise)
+    previous_scores = await score_async(exercise)
 
     while True:
         clock.tick()
+        
+        yield Setback(user="lixo")
 
-        new_scores = score(exercise)
-        notifications = list(
-            create_notifications(acc_notifications, new_scores, previous_scores, clock)
-        )
+        # new_scores = await score_async(exercise)
 
-        acc_notifications.extend(notifications)
-        previous_scores = new_scores
+        # notifications = create_notifications(
+        #     acc_notifications, new_scores, previous_scores, clock
+        # )
+        # for notification in notifications:
+        #     yield notification
 
-        yield from notifications
+        # previous_scores = new_scores
+        # acc_notifications.extend(notifications)
 
-        sleep(clock.get_delta_seconds() + clock.lag())
+        await asyncio.sleep(clock.get_delta_seconds() + clock.lag())
+
+
+async def print_notifications(exercise):
+    async for notification in pull_notifications(exercise):
+        print(notification)
 
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        sys.exit(f"Must specify exercise. For example 'navigation.py scripting1'.")
+        sys.exit(
+            f"Must specify exercise. For example 'navigation.py scripting1'."
+        )
 
-    execise = sys.argv[1]
+    exercise = sys.argv[1]
 
-    for notification in pull_notifications(execise):
-        print(notification)
+    asyncio.run(print_notifications(exercise))

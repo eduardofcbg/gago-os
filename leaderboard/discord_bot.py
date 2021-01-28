@@ -1,18 +1,22 @@
 import os
 from typing import List, Dict
+from operator import attrgetter, itemgetter
 from dataclasses import dataclass, asdict
-from functools import partial
 
-from jinja2 import Environment, DictLoader, FileSystemLoader
+import cairosvg
+from jinja2 import Environment, FileSystemLoader
 from discord.ext.commands import Bot, Group, Command
-from discord import Intents
+from discord import Intents, File
 
+from utils import run_in_executor
 from users import get_users as get_os_users
+from exercises.score import score as get_score
 from notify import pull_notifications
 from exercises.score import is_valid_exercise
 
 
 TOKEN = os.environ["DISCORD_BOT_TOKEN"]
+CHART_FILE_PATH = "chart.png"
 
 
 @dataclass
@@ -22,7 +26,7 @@ class Go:
 
 @dataclass
 class Stop:
-    pass
+    exercise: str
 
 
 @dataclass
@@ -47,8 +51,21 @@ class InvalidExercise:
     exercise: str
 
 
+@dataclass
+class Chart:
+    scores: List[int]
+
+
+@dataclass
+class Score:
+    user: str
+    xp: int
+    place: int
+
+
 user_discord_member = {}
 notifications = None
+exercise = None
 
 
 def mention(user):
@@ -59,9 +76,41 @@ def mention(user):
         return user
 
 
+@run_in_executor
+def build_chart(destination_file):
+    def mention(user):
+        discord_member = user_discord_member.get(user)
+        if discord_member:
+            return f"@{discord_member.name}"
+        else:
+            return user
+
+    scores = [
+        Score(user=mention(user), xp=score, place=i)
+        for (i, (user, score)) in enumerate(
+            sorted(get_score(exercise).items(), key=itemgetter(1)), 1
+        )
+    ]
+
+    sorted_scores = []
+
+    for i, score in enumerate(
+        sorted(scores, key=attrgetter("xp"), reverse=True)
+    ):
+        if i % 2 == 0:
+            sorted_scores.append(score)
+        else:
+            sorted_scores.insert(0, score)
+
+    svg_chart = format(Chart(scores=sorted_scores))
+    cairosvg.svg2png(
+        bytestring=bytes(svg_chart, encoding="utf-8"), write_to=destination_file
+    )
+
+
 template_env = Environment(
     loader=FileSystemLoader("/config/discord/leaderboard/messages"),
-    auto_reload=False,
+    auto_reload=True,
     trim_blocks=True,
     lstrip_blocks=True,
 )
@@ -78,30 +127,35 @@ def format(message):
 async def gago(ctx, subcommand):
     await ctx.reply(format(SubcommandNotFound(subcommand)))
 
+import asyncio
 
-async def start(ctx, exercise):
+async def start(ctx, _exercise):
     global notifications
+    global exercise
 
-    if not is_valid_exercise(exercise):
-        await ctx.reply(format(InvalidExercise(exercise)))
+    if not is_valid_exercise(_exercise):
+        await ctx.reply(format(InvalidExercise(_exercise)))
 
     elif not notifications:
         await ctx.reply(format(Go()))
 
-        notifications = pull_notifications(exercise)
+        exercise = _exercise
+        notifications = asyncio.create_task(pull_notifications(exercise))
 
-        for notification in notifications:
+        async for notification in notifications:
             await ctx.send(format(notification))
 
 
 async def stop(ctx):
     global notifications
+    global exercise
 
     if notifications:
-        notifications.close()
-        notifications = None
+        await ctx.reply(format(Stop(exercise=exercise)))
 
-        await ctx.reply(format(Stop()))
+        await notifications.aclose()
+        notifications = None
+        exercise = None
 
 
 async def set_user(ctx, user):
@@ -121,7 +175,8 @@ async def show_users(ctx):
         members_not_user = list(member.mention for member in ctx.guild.members)
 
         user_discord_mention = {
-            user: member.mention for (user, member) in user_discord_member.items()
+            user: member.mention
+            for (user, member) in user_discord_member.items()
         }
 
         message = ShowUsers(
@@ -131,6 +186,16 @@ async def show_users(ctx):
         )
 
         await ctx.reply(format(message))
+
+
+async def chart(ctx):
+    async with ctx.typing():
+        with open(CHART_FILE_PATH, "wb") as chart_file:
+            await build_chart(chart_file)
+
+        with open(CHART_FILE_PATH, "rb") as chart_file:
+            picture = File(chart_file)
+            await ctx.reply(file=picture)
 
 
 intents = Intents.default()
@@ -153,6 +218,12 @@ group.add_command(
         show_users,
         name="users",
         aliases=("showusers",),
+    )
+)
+group.add_command(
+    Command(
+        chart,
+        aliases=("scores", "showscores", "xp", "leaderboard"),
     )
 )
 
