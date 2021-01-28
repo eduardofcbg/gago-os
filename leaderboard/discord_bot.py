@@ -94,9 +94,7 @@ def build_chart(destination_file):
 
     sorted_scores = []
 
-    for i, score in enumerate(
-        sorted(scores, key=attrgetter("xp"), reverse=True)
-    ):
+    for i, score in enumerate(sorted(scores, key=attrgetter("xp"), reverse=True)):
         if i % 2 == 0:
             sorted_scores.append(score)
         else:
@@ -127,7 +125,9 @@ def format(message):
 async def gago(ctx, subcommand):
     await ctx.reply(format(SubcommandNotFound(subcommand)))
 
+
 import asyncio
+
 
 async def start(ctx, _exercise):
     global notifications
@@ -175,8 +175,7 @@ async def show_users(ctx):
         members_not_user = list(member.mention for member in ctx.guild.members)
 
         user_discord_mention = {
-            user: member.mention
-            for (user, member) in user_discord_member.items()
+            user: member.mention for (user, member) in user_discord_member.items()
         }
 
         message = ShowUsers(
