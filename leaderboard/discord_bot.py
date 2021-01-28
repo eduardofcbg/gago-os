@@ -17,7 +17,6 @@ from exercises.score import is_valid_exercise
 
 
 TOKEN = os.environ["DISCORD_BOT_TOKEN"]
-CHART_FILE_PATH = "chart.png"
 
 
 @dataclass
@@ -51,13 +50,16 @@ class SubcommandNotFound:
 class InvalidExercise:
     exercise: str
 
+
 @dataclass
 class AlreadySetUser:
     user: str
 
+
 @dataclass
 class InvalidUser:
     user: str
+
 
 @dataclass
 class Chart:
@@ -76,23 +78,7 @@ notifications = None
 exercise = None
 
 
-def mention(user):
-    discord_member = user_discord_member.get(user)
-    if discord_member:
-        return discord_member.mention
-    else:
-        return user
-
-
-@run_in_executor
-def build_chart(_exercise):
-    def mention(user):
-        discord_member = user_discord_member.get(user)
-        if discord_member:
-            return f"@{discord_member.name}"
-        else:
-            return user
-
+def get_chart_scores(_exercise):
     scores = [
         Score(user=mention(user), xp=score, place=place)
         for place, (user, score) in enumerate(
@@ -105,10 +91,31 @@ def build_chart(_exercise):
     offset = 1 if len(asc_scores) % 2 == 0 else 0
     centered_scores = asc_scores[1::2] + dsc_scores[offset::2]
 
+    return centered_scores
+
+
+@run_in_executor
+def build_chart(_exercise):
+    def mention(user):
+        discord_member = user_discord_member.get(user)
+        if discord_member:
+            return f"@{discord_member.name}"
+        else:
+            return user
+
+    centered_scores = get_chart_scores(_exercise)
     svg_chart = format(Chart(scores=centered_scores))
     png_bytes = cairosvg.svg2png(bytestring=bytes(svg_chart, encoding="utf-8"))
 
     return png_bytes
+
+
+def mention(user):
+    discord_member = user_discord_member.get(user)
+    if discord_member:
+        return discord_member.mention
+    else:
+        return user
 
 
 template_env = Environment(
@@ -163,10 +170,10 @@ async def stop(ctx):
 async def set_user(ctx, user=None):
     if user not in get_os_users():
         await ctx.reply(format(InvalidUser(user)))
-    
+
     elif user in user_discord_member:
         await ctx.reply(format(AlreadySetUser(user)))
-    
+
     else:
         discord_member = ctx.message.author
         user_discord_member[user] = discord_member
@@ -183,7 +190,7 @@ async def show_users(ctx):
         members_not_user = list(member.mention for member in ctx.guild.members)
 
         user_discord_mention = {
-            user: member.mention for (user, member) in user_discord_member.items()
+            user: member.mention for user, member in user_discord_member.items()
         }
 
         message = ShowUsers(
@@ -202,7 +209,7 @@ async def chart(ctx, _exercise=None):
         try:
             png_bytes = await build_chart(_exercise or exercise)
             picture = File(io.BytesIO(png_bytes), filename="chart.png")
-            
+
             await ctx.reply(file=picture)
         except ValueError:
             await ctx.reply(format(InvalidExercise(_exercise)))
@@ -214,20 +221,16 @@ bot = Bot(intents=intents, command_prefix=("$", "!", "/"))
 
 group = Group(gago, invoke_without_command=True)
 
+
 def is_admin(ctx):
     channel = ctx.channel
     permissions = channel.permissions_for(ctx.author)
     return permissions.administrator
 
+
 group.add_command(Command(start, checks=[is_admin]))
 group.add_command(Command(stop, checks=[is_admin]))
-group.add_command(
-    Command(
-        set_user,
-        name="user",
-        aliases=("setuser",)
-    )
-)
+group.add_command(Command(set_user, name="user", aliases=("setuser",)))
 group.add_command(
     Command(
         show_users,

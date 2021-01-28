@@ -17,6 +17,8 @@ def is_valid_exercise(exercise):
 
 def score(exercise):
     if not is_valid_exercise(exercise):
-        raise ValueError(f"Exercise {exercise} does not exist in {set(score_exercise)}")
+        raise ValueError(
+            f"Exercise {exercise} does not exist in {set(score_exercise)}"
+        )
 
     return {user: score_exercise[exercise](user) for user in get_users()}

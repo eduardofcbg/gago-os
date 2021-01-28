@@ -79,12 +79,16 @@ def create_progress_notifications(new_scores, previous_scores, clock):
 def create_notifications(acc_notifications, new_scores, previous_scores, clock):
     def count_finish(notifications):
         return sum(
-            1 for notification in notifications if isinstance(notification, Finish)
+            1
+            for notification in notifications
+            if isinstance(notification, Finish)
         )
 
     def count_start(notifications):
         return sum(
-            1 for notification in notifications if isinstance(notification, Start)
+            1
+            for notification in notifications
+            if isinstance(notification, Start)
         )
 
     for notification in create_progress_notifications(
@@ -143,7 +147,9 @@ async def print_notifications(exercise):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        sys.exit(f"Must specify exercise. For example 'navigation.py scripting1'.")
+        sys.exit(
+            f"Must specify exercise. For example 'navigation.py scripting1'."
+        )
 
     exercise = sys.argv[1]
 
