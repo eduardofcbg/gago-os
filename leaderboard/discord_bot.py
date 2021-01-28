@@ -6,7 +6,7 @@ from dataclasses import dataclass, asdict
 
 import cairosvg
 from jinja2 import Environment, FileSystemLoader
-from discord.ext.commands import Bot, Group, Command, has_permissions
+from discord.ext.commands import Bot, Group, Command
 from discord import Intents, File
 
 from utils import run_in_executor
@@ -80,7 +80,7 @@ exercise = None
 
 def get_chart_scores(_exercise):
     scores = [
-        Score(user=mention(user), xp=score, place=place)
+        Score(user=user, xp=score, place=place)
         for place, (user, score) in enumerate(
             sorted(get_score(_exercise).items(), key=itemgetter(1)), 1
         )
@@ -96,13 +96,6 @@ def get_chart_scores(_exercise):
 
 @run_in_executor
 def build_chart(_exercise):
-    def mention(user):
-        discord_member = user_discord_member.get(user)
-        if discord_member:
-            return f"@{discord_member.name}"
-        else:
-            return user
-
     centered_scores = get_chart_scores(_exercise)
     svg_chart = format(Chart(scores=centered_scores))
     png_bytes = cairosvg.svg2png(bytestring=bytes(svg_chart, encoding="utf-8"))
