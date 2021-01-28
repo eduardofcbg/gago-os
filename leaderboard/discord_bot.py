@@ -198,14 +198,17 @@ async def show_users(ctx):
 async def chart(ctx, _exercise=None):
     global exercise
 
-    async with ctx.typing():
-        try:
-            png_bytes = await build_chart(_exercise or exercise)
+    chart_exercise = _exercise or exercise
+
+    if not is_valid_exercise(chart_exercise):
+        await ctx.reply(format(InvalidExercise(chart_exercise)))
+
+    else:
+        async with ctx.typing():
+            png_bytes = await build_chart(chart_exercise)
             picture = File(io.BytesIO(png_bytes), filename="chart.png")
 
             await ctx.reply(file=picture)
-        except ValueError:
-            await ctx.reply(format(InvalidExercise(_exercise)))
 
 
 intents = Intents.default()
