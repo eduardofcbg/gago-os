@@ -48,4 +48,3 @@ if __name__ == "__main__":
         ui.display()
 
         sleep(clock.get_delta_seconds() + clock.lag())
-        clock.tick()
