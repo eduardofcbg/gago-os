@@ -6,7 +6,7 @@ from dataclasses import dataclass, asdict
 
 import cairosvg
 from jinja2 import Environment, FileSystemLoader
-from discord.ext.commands import Bot, Group, Command
+from discord.ext.commands import Bot, Group, Command, has_permissions
 from discord import Intents, File
 
 from utils import run_in_executor
@@ -51,6 +51,13 @@ class SubcommandNotFound:
 class InvalidExercise:
     exercise: str
 
+@dataclass
+class AlreadySetUser:
+    user: str
+
+@dataclass
+class InvalidUser:
+    user: str
 
 @dataclass
 class Chart:
@@ -78,7 +85,7 @@ def mention(user):
 
 
 @run_in_executor
-def build_chart():
+def build_chart(_exercise):
     def mention(user):
         discord_member = user_discord_member.get(user)
         if discord_member:
@@ -89,7 +96,7 @@ def build_chart():
     scores = [
         Score(user=mention(user), xp=score, place=place)
         for place, (user, score) in enumerate(
-            sorted(get_score(exercise).items(), key=itemgetter(1)), 1
+            sorted(get_score(_exercise).items(), key=itemgetter(1)), 1
         )
     ]
 
@@ -124,7 +131,7 @@ async def gago(ctx, subcommand):
     await ctx.reply(format(SubcommandNotFound(subcommand)))
 
 
-async def start(ctx, _exercise):
+async def start(ctx, _exercise=None):
     global notifications
     global exercise
 
@@ -153,13 +160,19 @@ async def stop(ctx):
         exercise = None
 
 
-async def set_user(ctx, user):
-    discord_member = ctx.message.author
-    user_discord_member[user] = discord_member
+async def set_user(ctx, user=None):
+    if user not in get_os_users():
+        await ctx.reply(format(InvalidUser(user)))
+    
+    elif user in user_discord_member:
+        await ctx.reply(format(AlreadySetUser(user)))
+    
+    else:
+        discord_member = ctx.message.author
+        user_discord_member[user] = discord_member
+        message = UserSet(user=user)
 
-    message = UserSet(user=user)
-
-    await ctx.reply(format(message))
+        await ctx.reply(format(message))
 
 
 async def show_users(ctx):
@@ -182,12 +195,17 @@ async def show_users(ctx):
         await ctx.reply(format(message))
 
 
-async def chart(ctx):
-    async with ctx.typing():
-        png_bytes = await build_chart()
+async def chart(ctx, _exercise=None):
+    global exercise
 
-        picture = File(io.BytesIO(png_bytes), filename="chart.png")
-        await ctx.reply(file=picture)
+    async with ctx.typing():
+        try:
+            png_bytes = await build_chart(_exercise or exercise)
+            picture = File(io.BytesIO(png_bytes), filename="chart.png")
+            
+            await ctx.reply(file=picture)
+        except ValueError:
+            await ctx.reply(format(InvalidExercise(_exercise)))
 
 
 intents = Intents.default()
@@ -196,13 +214,18 @@ bot = Bot(intents=intents, command_prefix=("$", "!", "/"))
 
 group = Group(gago, invoke_without_command=True)
 
-group.add_command(Command(start))
-group.add_command(Command(stop))
+def is_admin(ctx):
+    channel = ctx.channel
+    permissions = channel.permissions_for(ctx.author)
+    return permissions.administrator
+
+group.add_command(Command(start, checks=[is_admin]))
+group.add_command(Command(stop, checks=[is_admin]))
 group.add_command(
     Command(
         set_user,
         name="user",
-        aliases=("setuser",),
+        aliases=("setuser",)
     )
 )
 group.add_command(
@@ -215,6 +238,7 @@ group.add_command(
 group.add_command(
     Command(
         chart,
+        name="chart",
         aliases=("scores", "showscores", "xp", "leaderboard"),
     )
 )
