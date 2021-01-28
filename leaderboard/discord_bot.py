@@ -79,15 +79,16 @@ exercise = None
 
 
 def get_chart_scores(_exercise):
-    scores = [
+    dsc_scores = [
         Score(user=user, xp=score, place=place)
         for place, (user, score) in enumerate(
-            sorted(get_score(_exercise).items(), key=itemgetter(1)), 1
+            sorted(
+                get_score(_exercise).items(), key=itemgetter(1), reverse=True
+            ),
+            1,
         )
     ]
-
-    asc_scores = sorted(scores, key=attrgetter("xp"))
-    dsc_scores = asc_scores[::-1]
+    asc_scores = dsc_scores[::-1]
     offset = 1 if len(asc_scores) % 2 == 0 else 0
     centered_scores = asc_scores[1::2] + dsc_scores[offset::2]
 
