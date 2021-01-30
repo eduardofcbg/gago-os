@@ -79,6 +79,8 @@ exercise = None
 
 
 def get_chart_scores(_exercise):
+    users_member = set(user_discord_member)
+    
     dsc_scores = [
         Score(user=user, xp=score, place=place)
         for place, (user, score) in enumerate(
@@ -87,6 +89,7 @@ def get_chart_scores(_exercise):
             ),
             1,
         )
+        if user in users_member
     ]
     asc_scores = dsc_scores[::-1]
     offset = 1 if len(asc_scores) % 2 == 0 else 0

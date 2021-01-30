@@ -61,7 +61,7 @@
         transform="translate(0, {{bar_y - polygon_height}})"></polygon>
       
       <text class="user" dx="{{middle_x}}" y="{{bar_text_padding}}" text-anchor="middle">
-          {{score.user | mention}}
+          {{score.user}}
       </text>
       
       {% if score.xp > 0 %}
