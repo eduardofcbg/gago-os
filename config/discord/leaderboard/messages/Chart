@@ -41,7 +41,7 @@
       }
 
       .level {
-        font: 12px;
+        font: bold 12px;
       }
     ]]></style>
   </defs>
