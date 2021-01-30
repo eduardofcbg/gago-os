@@ -42,4 +42,4 @@ class TestClock(unittest.TestCase):
 
         self.assertEqual(clock.elapsed_hours(), 1)
 
-    # TODO: test tick_for
+    # TODO: test tick_for, lag

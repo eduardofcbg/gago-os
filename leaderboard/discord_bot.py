@@ -73,6 +73,8 @@ class Score:
     place: int
 
 
+# For now let's keep this simple with global state
+# Multiple sessions of the exercise are not supported
 user_discord_member = {}
 notifications = None
 exercise = None
@@ -231,20 +233,8 @@ def is_admin(ctx):
 group.add_command(Command(start, checks=[is_admin]))
 group.add_command(Command(stop, checks=[is_admin]))
 group.add_command(Command(set_user, name="user", aliases=("setuser",)))
-group.add_command(
-    Command(
-        show_users,
-        name="users",
-        aliases=("showusers",),
-    )
-)
-group.add_command(
-    Command(
-        chart,
-        name="chart",
-        aliases=("scores", "showscores", "xp", "leaderboard"),
-    )
-)
+group.add_command(Command(show_users, name="users"))
+group.add_command(Command(chart, aliases=("scores", "leaderboard")))
 
 bot.add_command(group)
 bot.run(TOKEN)
