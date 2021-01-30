@@ -41,7 +41,6 @@
       }
 
       .level {
-        fill: rgb(167, 131, 62);
         font: 12px;
       }
     ]]></style>
@@ -58,7 +57,8 @@
       
       <polygon
         points="{{polygon_width / 2}} 0,{{bar_width - polygon_width / 2}} 0,{{bar_width}} {{polygon_height}},0 {{polygon_height}}"
-        transform="translate(0, {{bar_y - polygon_height}})"></polygon>
+        transform="translate(0, {{bar_y - polygon_height}})">  
+      </polygon>
       
       <text class="user" dx="{{middle_x}}" y="{{bar_text_padding}}" text-anchor="middle">
           {{score.user | mention}}

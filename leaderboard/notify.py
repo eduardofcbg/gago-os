@@ -45,7 +45,7 @@ class Win:
     place: int
 
 
-def create_progress_notifications(new_scores, previous_scores, clock):
+def create_progress(new_scores, previous_scores, clock):
     def is_current_minute_multiple_of(*, minutes):
         return (
             clock.current_tick != 0
@@ -63,7 +63,7 @@ def create_progress_notifications(new_scores, previous_scores, clock):
     if is_current_minute_multiple_of(minutes=20):
         yield Winning(users=winning_users())
 
-    for (user, score) in new_scores.items():
+    for user, score in new_scores.items():
         previous_score = previous_scores[user]
 
         if score < previous_score:
@@ -77,33 +77,31 @@ def create_progress_notifications(new_scores, previous_scores, clock):
 
 
 def create_notifications(acc_notifications, new_scores, previous_scores, clock):
-    def count_finish(notifications):
+    def count_finish():
         return sum(
             1
-            for notification in notifications
+            for notification in acc_notifications
             if isinstance(notification, Finish)
         )
 
-    def count_start(notifications):
+    def count_start():
         return sum(
             1
-            for notification in notifications
+            for notification in acc_notifications
             if isinstance(notification, Start)
         )
 
-    for notification in create_progress_notifications(
-        new_scores, previous_scores, clock
-    ):
+    for notification in create_progress(new_scores, previous_scores, clock):
         if isinstance(notification, Finish):
             user = notification.user
-            place = count_finish(acc_notifications) + 1
+            place = count_finish() + 1
             if place <= 3:
                 yield Win(user=user, place=place)
             else:
                 yield FinishPlace(user=user, place=place)
 
         elif isinstance(notification, Start):
-            if count_start(acc_notifications) == 0:
+            if count_start() == 0:
                 yield Headstart(user=notification.user)
 
         else:
@@ -119,9 +117,8 @@ async def pull_notifications(exercise):
     clock = Clock()
     clock.set_delta(seconds=5)
 
-    running = True
     acc_notifications = []
-    previous_scores = await score_async(exercise)
+    previous_scores = None
 
     while True:
         clock.tick()
@@ -129,8 +126,9 @@ async def pull_notifications(exercise):
         new_scores = await score_async(exercise)
 
         notifications = create_notifications(
-            acc_notifications, new_scores, previous_scores, clock
+            acc_notifications, new_scores, previous_scores or new_scores, clock
         )
+
         for notification in notifications:
             yield notification
 
