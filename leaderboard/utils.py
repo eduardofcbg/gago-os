@@ -2,6 +2,7 @@ import asyncio
 from functools import wraps, partial
 from subprocess import Popen, PIPE
 from os import path
+from contextlib import suppress
 
 
 def run_command(command):
@@ -35,3 +36,11 @@ def run_in_executor(f):
         return loop.run_in_executor(None, partial(f, *args, **kwargs))
 
     return wrapped
+
+
+async def cancel_gen(agen):
+    task = asyncio.create_task(agen.__anext__())
+    task.cancel()
+    with suppress(asyncio.CancelledError):
+        await task
+    await agen.aclose()

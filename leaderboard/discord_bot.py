@@ -9,7 +9,7 @@ from jinja2 import Environment, FileSystemLoader
 from discord.ext.commands import Bot, Group, Command
 from discord import Intents, File
 
-from utils import run_in_executor
+from utils import run_in_executor, cancel_gen
 from users import get_users as get_os_users
 from exercises.score import score as get_score
 from notify import pull_notifications
@@ -157,7 +157,7 @@ async def stop(ctx):
     global exercise
 
     if notifications:
-        await notifications.aclose()
+        await cancel_gen(notifications)
         notifications = None
         exercise = None
 
