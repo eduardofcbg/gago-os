@@ -16,11 +16,14 @@ class Clock:
     def get_delta_seconds(self):
         return self.delta.total_seconds()
 
-    def tick(self, ticks=1):
-        if self.current_tick == 0:
-            self.start_time = datetime.now()
+    def start(self):
+        self.start_time = datetime.now()
 
-        self.current_tick = self.current_tick + ticks
+    def tick(self, ticks=1):
+        if not self.start_time:
+            self.start()
+
+        self.current_tick += ticks
 
     def lag(self):
         elapsed_goal = self.elapsed()

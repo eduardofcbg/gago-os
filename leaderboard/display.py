@@ -39,12 +39,13 @@ if __name__ == "__main__":
 
     clock = Clock()
     clock.set_delta(seconds=5)
+    clock.start()
 
     while True:
-        clock.tick()
         scores = score(exercise)
 
         ui = create_ui(scores)
         ui.display()
 
         sleep(clock.get_delta_seconds() + clock.lag())
+        clock.tick()

@@ -1,5 +1,7 @@
 import unittest
 
+import time
+
 from clock import Clock
 
 
@@ -42,4 +44,29 @@ class TestClock(unittest.TestCase):
 
         self.assertEqual(clock.elapsed_hours(), 1)
 
-    # TODO: test tick_for, lag
+    def test_tick_for(self):
+        clock = Clock()
+        clock.set_delta(minutes=1)
+
+        self.assertEqual(clock.tick_for(hours=1), 60)
+
+    def test_lag_start(self):
+        clock = Clock()
+        clock.start()
+
+        time.sleep(1)
+
+        measured_lag = clock.lag()
+
+        self.assertTrue(-1.1 <= measured_lag <= 1, measured_lag)
+
+    def test_lag_tick(self):
+        clock = Clock()
+        clock.start()
+
+        time.sleep(1)
+
+        clock.tick()
+        measured_lag = clock.lag()
+
+        self.assertTrue(-0.1 <= measured_lag <= 0, measured_lag)

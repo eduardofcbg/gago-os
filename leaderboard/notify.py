@@ -1,7 +1,8 @@
 import sys
 import asyncio
 from dataclasses import dataclass
-from typing import List
+from typing import Set
+from itertools import chain
 
 from utils import run_in_executor
 from exercises.score import score
@@ -10,7 +11,7 @@ from clock import Clock
 
 @dataclass
 class Winning:
-    users: List[str]
+    users: Set[str]
 
 
 @dataclass
@@ -19,19 +20,9 @@ class Setback:
 
 
 @dataclass
-class Finish:
-    user: str
-
-
-@dataclass
 class FinishPlace:
     user: str
     place: int
-
-
-@dataclass
-class Start:
-    user: str
 
 
 @dataclass
@@ -45,7 +36,7 @@ class Win:
     place: int
 
 
-def create_progress(new_scores, previous_scores, clock):
+def create_periodic(new_scores, clock):
     def is_current_minute_multiple_of(*, minutes):
         return (
             clock.current_tick != 0
@@ -61,7 +52,23 @@ def create_progress(new_scores, previous_scores, clock):
         ]
 
     if is_current_minute_multiple_of(minutes=20):
-        yield Winning(users=winning_users())
+        yield Winning(users=set(winning_users()))
+
+
+def create_progress(new_scores, previous_scores, acc_notifications):
+    def count_finish():
+        return sum(
+            1
+            for notification in acc_notifications
+            if isinstance(notification, (Win, FinishPlace))
+        )
+
+    def count_headstart():
+        return sum(
+            1
+            for notification in acc_notifications
+            if isinstance(notification, Headstart)
+        )
 
     for user, score in new_scores.items():
         previous_score = previous_scores[user]
@@ -70,42 +77,15 @@ def create_progress(new_scores, previous_scores, clock):
             yield Setback(user)
 
         if previous_score < 100 and score == 100:
-            yield Finish(user)
-
-        if previous_score == 0 and score > 0 and score != 100:
-            yield Start(user)
-
-
-def create_notifications(acc_notifications, new_scores, previous_scores, clock):
-    def count_finish():
-        return sum(
-            1
-            for notification in acc_notifications
-            if isinstance(notification, Finish)
-        )
-
-    def count_start():
-        return sum(
-            1
-            for notification in acc_notifications
-            if isinstance(notification, Start)
-        )
-
-    for notification in create_progress(new_scores, previous_scores, clock):
-        if isinstance(notification, Finish):
-            user = notification.user
             place = count_finish() + 1
             if place <= 3:
                 yield Win(user=user, place=place)
             else:
                 yield FinishPlace(user=user, place=place)
 
-        elif isinstance(notification, Start):
-            if count_start() == 0:
-                yield Headstart(user=notification.user)
-
-        else:
-            yield notification
+        if previous_score == 0 and score > 0 and score != 100:
+            if count_headstart() == 0:
+                yield Headstart(user=user)
 
 
 @run_in_executor
@@ -116,26 +96,28 @@ def score_async(exercise):
 async def pull_notifications(exercise):
     clock = Clock()
     clock.set_delta(seconds=5)
+    clock.start()
 
     acc_notifications = []
     previous_scores = None
 
     while True:
-        clock.tick()
-
         new_scores = await score_async(exercise)
 
-        notifications = create_notifications(
-            acc_notifications, new_scores, previous_scores or new_scores, clock
+        progress = create_progress(
+            new_scores, previous_scores or new_scores, acc_notifications
         )
+        periodic = create_periodic(new_scores, clock)
+        notifications = list(chain(progress, periodic))
 
         for notification in notifications:
             yield notification
 
+        acc_notifications = [*acc_notifications, *notifications]
         previous_scores = new_scores
-        acc_notifications.extend(notifications)
 
         await asyncio.sleep(clock.get_delta_seconds() + clock.lag())
+        clock.tick()
 
 
 async def print_notifications(exercise):

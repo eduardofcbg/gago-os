@@ -1,93 +1,172 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, call
 
-from notify import merge_scores, get_events, get_event_history
+from datetime import datetime
+
+from notify import pull_notifications, create_progress, create_periodic
+from notify import Headstart, Win, FinishPlace, Setback, Winning
+from clock import Clock
 
 
-def mocked_get_score_event(previous_score, score):
-    return "finish" if previous_score < 100 and score == 100 else None
+class TestNotify(unittest.IsolatedAsyncioTestCase):
+    @patch("notify.create_progress", return_value=["some_notification"])
+    @patch("notify.create_periodic", return_value=["periodic_notification"])
+    @patch("notify.score", side_effect=[{"user1": 50}, {"user1": 100}])
+    async def test_pull_notifications(
+        self, score, create_periodic, create_progress
+    ):
+        notifications = pull_notifications(None)
+        pulled = []
 
+        while len(pulled) < 4:
+            pulled.append(await notifications.__anext__())
 
-class TestNotify(unittest.TestCase):
-    def test_merge_scores(self):
-        previous_acc_scores = {"user1": [1], "user2": [2]}
-        scores = {"user1": 11, "user2": 22}
-        expected_acc_scores = {"user1": [1, 11], "user2": [2, 22]}
+        create_progress.assert_has_calls(
+            [
+                call({"user1": 50}, {"user1": 50}, []),
+                call(
+                    {"user1": 100},
+                    {"user1": 50},
+                    ["some_notification", "periodic_notification"],
+                ),
+            ]
+        )
 
-        merged_scores = merge_scores(previous_acc_scores, scores)
-        self.assertEqual(merged_scores, expected_acc_scores)
+        self.assertEqual(
+            pulled,
+            [
+                "some_notification",
+                "periodic_notification",
+                "some_notification",
+                "periodic_notification",
+            ],
+        )
 
-    def test_get_events(self):
-        previous_score = {"user1": 50, "user2": 10, "user3": 100, "user4": 40}
-        score = {"user1": 60, "user2": 100, "user3": 100, "user4": 10}
-        expected_events = {
-            "user1": "jump",
-            "user2": "finish",
-            "user3": None,
-            "user4": "setback",
+    @patch("notify.create_progress", return_value=["some_notification"])
+    @patch("notify.create_periodic", return_value=[])
+    @patch("notify.score", return_value={})
+    async def test_pull_notifications_sleep_time(
+        self, score, create_periodic, create_progress
+    ):
+        start_time = datetime.now()
+
+        notifications = pull_notifications(None)
+        pulled = []
+
+        while len(pulled) < 3:
+            pulled.append(await notifications.__anext__())
+
+        measured_delay = (datetime.now() - start_time).total_seconds()
+
+        self.assertTrue(10 <= measured_delay <= 10.1, measured_delay)
+
+    def test_create_progress_headstart(self):
+        acc_notifications = []
+        previous_scores = {"user1": 0, "user2": 10}
+        new_scores = {"user1": 10, "user2": 11}
+
+        progress = create_progress(
+            new_scores, previous_scores, acc_notifications
+        )
+        expected_progress = [Headstart(user="user1")]
+
+        self.assertEqual(list(progress), expected_progress)
+
+    def test_create_progress_headstart(self):
+        acc_notifications = [Headstart(user="user2")]
+        previous_scores = {"user1": 0, "user2": 10}
+        new_scores = {"user1": 10, "user2": 11}
+
+        progress = create_progress(
+            new_scores, previous_scores, acc_notifications
+        )
+        expected_progress = []
+
+        self.assertEqual(list(progress), expected_progress)
+
+    def test_create_progress_win(self):
+        acc_notifications = [Win(user="user3", place=1)]
+        previous_scores = {
+            "user1": 0,
+            "user2": 90,
+            "user3": 100,
+        }
+        new_scores = {
+            "user1": 100,
+            "user2": 100,
+            "user3": 100,
         }
 
-        self.assertEqual(get_events(previous_score, score), expected_events)
+        progress = create_progress(
+            new_scores, previous_scores, acc_notifications
+        )
+        expected_progress = [
+            Win(user="user1", place=2),
+            Win(user="user2", place=2),
+        ]
 
-    @patch("notify.get_score_event", side_effect=mocked_get_score_event)
-    def test_get_event_history(self, get_score_event):
-        acc_scores = {
-            "user1": [0, 50, 100],
-            "user2": [0, 20, 70],
+        self.assertEqual(list(progress), expected_progress)
+
+    def test_create_progress_finish(self):
+        acc_notifications = [
+            Win(user="user1", place=1),
+            Win(user="user2", place=2),
+            Win(user="user3", place=2),
+            FinishPlace(user="user4", place=4),
+        ]
+        previous_scores = {
+            "user1": 100,
+            "user2": 100,
+            "user3": 100,
+            "user4": 100,
+            "user5": 90,
         }
-        expected_event_history = {
-            "user1": [None, "finish"],
-            "user2": [None, None],
+        new_scores = {
+            "user1": 100,
+            "user2": 100,
+            "user3": 100,
+            "user4": 100,
+            "user5": 100,
         }
 
-        self.assertEqual(get_event_history(acc_scores), expected_event_history)
+        progress = create_progress(
+            new_scores, previous_scores, acc_notifications
+        )
+        expected_progress = [FinishPlace(user="user5", place=5)]
 
-    # # TODO: do not patch this
-    # @patch("notify.get_score_events", side_effect=mocked_get_score_events)
-    # def test_condense_events(self, get_score_events):
-    #     clock = None
+        self.assertEqual(list(progress), expected_progress)
 
-    #     acc_events1 = {
-    #         "user1": ["finish", None, None],
-    #         "user2": [None, "finish", None],
-    #         "user3": [None, None, None],
-    #         "user4": [None, None, None],
-    #         "user5": [None, None, None],
-    #     }
-    #     events1 = {
-    #         "user1": [None],
-    #         "user2": [None],
-    #         "user3": ["finish"],
-    #         "user4": ["finish"],
-    #         "user5": [None],
-    #     }
-    #     expected_condensed_events1 = {
-    #         "win-draw": {"users": {"user3", "user4"}, "place": 3}
-    #     }
+    def test_create_progress_setback(self):
+        acc_notifications = []
+        previous_scores = {
+            "user1": 50,
+            "user2": 50,
+            "user3": 50,
+        }
+        new_scores = {
+            "user1": 40,
+            "user2": 30,
+            "user3": 70,
+        }
 
-    #     acc_events2 = {
-    #         "user1": ["finish", None, None, None],
-    #         "user2": [None, "finish", None, None],
-    #         "user3": [None, None, None, "finish"],
-    #         "user4": [None, None, None, "finish"],
-    #         "user5": [None, None, None, None],
-    #     }
-    #     events2 = {
-    #         "user1": [None],
-    #         "user2": [None],
-    #         "user3": [None],
-    #         "user4": [None],
-    #         "user5": ["finish"],
-    #     }
-    #     expected_condensed_events2 = {
-    #         "finish": {"user": "user5", "place": 5},
-    #     }
+        progress = create_progress(
+            new_scores, previous_scores, acc_notifications
+        )
+        expected_progress = [Setback(user="user1"), Setback(user="user2")]
 
-    #     self.assertEqual(
-    #         condense_events(acc_events1, events1, clock),
-    #         expected_condensed_events1,
-    #     )
-    #     self.assertEqual(
-    #         condense_events(acc_events2, events2, clock),
-    #         expected_condensed_events2,
-    #     )
+        self.assertEqual(list(progress), expected_progress)
+
+    def test_create_periodic(self):
+        new_scores = {"user1": 40, "user2": 50, "user3": 50, "user4": 10}
+        clock = Clock()
+        clock.set_delta(minutes=1)
+        clock.tick(19)
+
+        periodic = create_periodic(new_scores, clock)
+
+        self.assertEqual(list(periodic), [])
+
+        clock.tick(1)
+        periodic = create_periodic(new_scores, clock)
+
+        self.assertEqual(list(periodic), [Winning(users={"user2", "user3"})])
