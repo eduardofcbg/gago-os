@@ -1,7 +1,7 @@
 {% if user_to_mention %}
 ✅ **Utilizadores registados**
 {% for (user, mention) in user_to_mention.items() %}
-{{user}} {{mention}}
+{{mention}} {{user}}
 {% endfor %}
 {% endif %}
 

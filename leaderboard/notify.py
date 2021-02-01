@@ -1,8 +1,10 @@
 import asyncio
 import sys
+from collections import OrderedDict
 from dataclasses import dataclass
 from itertools import chain
-from typing import List
+from operator import itemgetter
+from typing import List, Any, Set
 
 from clock import Clock
 from exercises.score import score
@@ -11,92 +13,121 @@ from utils import run_in_executor
 
 @dataclass
 class Winning:
-    users: List[str]
+    users: List
 
 
 @dataclass
 class Setback:
-    user: str
+    user: Any
 
 
 @dataclass
 class FinishPlace:
-    user: str
+    user: Any
     place: int
 
 
 @dataclass
 class Headstart:
-    user: str
+    user: Any
 
 
 @dataclass
 class Win:
-    user: str
+    user: Any
     place: int
 
 
-def create_periodic(new_scores, clock):
-    def is_current_minute_multiple_of(**delta_args):
-        periodic_tick = clock.tick_for(**delta_args)
+@dataclass
+class Surpass:
+    user: Any
+    surpassed: Set
 
-        return (
-                clock.current_tick != 0
-                and periodic_tick != 0
-                and clock.current_tick % periodic_tick == 0
-        )
 
-    def winning_users():
-        max_score = max(new_scores.values())
-        return [
-            user
-            for user, score in new_scores.items()
-            if score > 0 and score == max_score
-        ]
+def is_multiple_of(clock, **delta_args):
+    periodic_tick = clock.tick_for(**delta_args)
 
-    if is_current_minute_multiple_of(minutes=1):
-        yield Winning(users=winning_users())
+    return (
+        clock.current_tick != 0
+        and periodic_tick != 0
+        and clock.current_tick % periodic_tick == 0
+    )
+
+
+def winning_users(scores):
+    max_score = max(scores.values())
+    return [user for user, score in scores.items() if score > 0 and score == max_score]
+
+
+def create_periodic(scores, clock):
+    if is_multiple_of(clock, minutes=20):
+        yield Winning(users=winning_users(scores))
+
+
+def count_finish(notifications):
+    return sum(
+        1
+        for notification in notifications
+        if isinstance(notification, (Win, FinishPlace))
+    )
+
+
+def count_headstart(notifications):
+    return sum(
+        1 for notification in notifications if isinstance(notification, Headstart)
+    )
+
+
+def create_user_to_place(scores):
+    dsc_users = sorted(scores.items(), key=itemgetter(1), reverse=True)
+    user_to_place = OrderedDict()
+
+    for place, (user, score) in enumerate(dsc_users):
+        user_to_place[user] = place
+
+    return user_to_place
 
 
 def create_progress(new_scores, previous_scores, acc_notifications):
-    def count_finish():
-        return sum(
-            1
-            for notification in acc_notifications
-            if isinstance(notification, (Win, FinishPlace))
-        )
+    new_users_to_place = create_user_to_place(new_scores)
+    previous_users_to_place = create_user_to_place(previous_scores)
+    previous_users_dsc = list(previous_users_to_place)
 
-    def count_headstart():
-        return sum(
-            1
-            for notification in acc_notifications
-            if isinstance(notification, Headstart)
-        )
-
-    for user, score in new_scores.items():
+    for user, new_place in new_users_to_place.items():
+        score = new_scores[user]
         previous_score = previous_scores[user]
+        previous_place = previous_users_to_place[user]
+
+        surpassed = {
+            surpassed_user
+            for surpassed_user in previous_users_dsc[new_place:previous_place]
+            if score != new_scores[surpassed_user]
+        }
+
+        if surpassed:
+            yield Surpass(user=user, surpassed=surpassed)
 
         if score < previous_score:
             yield Setback(user)
 
         if previous_score < 100 and score == 100:
-            place = count_finish() + 1
+            place = count_finish(acc_notifications) + 1
             if place <= 3:
                 yield Win(user=user, place=place)
             else:
                 yield FinishPlace(user=user, place=place)
 
         if previous_score == 0 and score > 0 and score != 100:
-            if count_headstart() == 0:
+            if count_headstart(acc_notifications) == 0:
                 yield Headstart(user=user)
 
 
 @run_in_executor
-def score_async(exercise):
-    return score(exercise)
+def score_async(exercise, users):
+    return score(exercise, users)
 
 
-async def pull_notifications(exercise):
+async def pull_notifications(exercise, users=None):
     clock = Clock()
     clock.set_delta(seconds=5)
     clock.start()
@@ -105,7 +136,7 @@ async def pull_notifications(exercise):
     previous_scores = None
 
     while True:
-        new_scores = await score_async(exercise)
+        new_scores = await score_async(exercise, users)
 
         progress = create_progress(
             new_scores, previous_scores or new_scores, acc_notifications
@@ -130,9 +161,7 @@ async def print_notifications(exercise):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        sys.exit(
-            f"Must specify exercise. For example 'navigation.py scripting1'."
-        )
+        sys.exit(f"Must specify exercise. For example 'navigation.py scripting1'.")
 
     exercise = sys.argv[1]
 

@@ -3,14 +3,15 @@
 
 {% set height = 500 %}
 {% set bar_margin = 20 %}
-{% set bar_width = 60 %}
+{% set bar_width = 90 %}
 {% set bar_text_margin = 10 %}
 {% set polygon_height = 10 %}
 {% set polygon_width = 10 %}
 {% set user_text_size = 10 %}
+{% set avatar_size = 50 %}
 
 {% set bar_padding = bar_margin + bar_width %}
-{% set max_bar_height = height - polygon_height - bar_text_margin - user_text_size %}
+{% set max_bar_height = height - polygon_height - bar_text_margin - 2 * user_text_size - avatar_size %}
 {% set middle_x = bar_width / 2 %}
 {% set width = bar_width * scores | length + (bar_padding - bar_width) * (scores | length - 1) %}
 
@@ -37,7 +38,7 @@
 
       .score, .level {
         fill: rgb(167, 131, 62);
-        font: 10px sans-serif;
+        font: 14px sans-serif;
       }
 
       .level {
@@ -53,17 +54,23 @@
     
     <g transform="translate({{(loop.index - 1) * bar_padding}}, 0)">
 
-      <rect class="bar" height="{{xp_height}}" y="{{bar_y}}" x="0"></rect>
+      <rect class="bar" height="{{xp_height}}" y="{{bar_y}}" x="0" />
       
       <polygon
         points="{{polygon_width / 2}} 0,{{bar_width - polygon_width / 2}} 0,{{bar_width}} {{polygon_height}},0 {{polygon_height}}"
         transform="translate(0, {{bar_y - polygon_height}})">  
       </polygon>
-      
+
+      <image x="{{middle_x - avatar_size / 2}}"
+             y="{{bar_text_padding - avatar_size - 2 * bar_text_margin}}"
+             height="{{avatar_size}}"
+             width="{{avatar_size}}"
+             href="{{score.user | avatar_url}}"/>
+
       <text class="user" dx="{{middle_x}}" y="{{bar_text_padding}}" text-anchor="middle">
-          {{score.user}}
+          @{{score.user | mention}}
       </text>
-      
+
       {% if score.xp > 0 %}
         <text class="score" dx="{{middle_x}}" y="{{bar_y + 15}}" text-anchor="middle">{{score.xp}}xp</text>
         

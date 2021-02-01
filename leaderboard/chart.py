@@ -26,7 +26,9 @@ def get_scores(users, exercise):
     if len(users) == 0:
         raise ValueError("No users to score")
 
-    dsc_scores = sorted(get_score(exercise).items(), key=itemgetter(1), reverse=True)
+    dsc_scores = sorted(
+        get_score(exercise, users).items(), key=itemgetter(1), reverse=True
+    )
     dsc_placed_users = [
         Score(user=user, xp=score, place=place)
         for place, (user, score) in enumerate(dsc_scores, 1)
@@ -37,6 +39,8 @@ def get_scores(users, exercise):
 
 
 def convert_svg_png(svg_text):
-    png_bytes = cairosvg.svg2png(bytestring=bytes(svg_text, encoding="utf-8"))
+    png_bytes = cairosvg.svg2png(
+        bytestring=bytes(svg_text, encoding="utf-8"), scale=2.0
+    )
 
     return png_bytes

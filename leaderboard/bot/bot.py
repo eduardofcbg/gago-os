@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, List
 
 from exercises.score import is_valid_exercise
-from notify import pull_notifications
+from notify import pull_notifications, Surpass, Winning, Win, FinishPlace
 from utils import cancel_gen
 
 
@@ -14,6 +14,11 @@ class InvalidUser:
 @dataclass
 class AlreadySetUser:
     user: Any
+
+
+@dataclass
+class AlreadySetMember:
+    member: Any
 
 
 @dataclass
@@ -78,6 +83,13 @@ class Session:
     def registered_users(self):
         return set(self.user_to_member)
 
+    def _deregister(self, deregister_member):
+        self.user_to_member = {
+            user: member
+            for user, member in self.user_to_member.items()
+            if member != deregister_member
+        }
+
     def register(self, user, member):
         if user not in self.users:
             return InvalidUser(user=user)
@@ -86,6 +98,7 @@ class Session:
             return AlreadySetUser(user=user)
 
         else:
+            self._deregister(member)
             self.user_to_member[user] = member
             return UserSet(user=user)
 
@@ -112,13 +125,17 @@ class Session:
         if self.running:
             yield AlreadyRunning()
         else:
-            self.notifications = pull_notifications(exercise)
+            self.notifications = pull_notifications(exercise, self.registered_users)
             self.exercise = exercise
 
             yield Go()
+            yield Chart(exercise=self.exercise)
 
             async for notification in self.notifications:
                 yield notification
+
+                if isinstance(notification, (Surpass, Winning, Win, FinishPlace)):
+                    yield Chart(exercise=self.exercise)
 
     async def stop(self):
         if not self.running:

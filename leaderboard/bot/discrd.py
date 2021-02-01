@@ -16,7 +16,7 @@ users = get_os_users()
 session = BotSession(users)
 
 discord_render_env = DiscordRenderEnv(session)
-chart_render_env = ChartRenderEnv()
+chart_render_env = ChartRenderEnv(session)
 
 
 @dataclass
@@ -50,7 +50,10 @@ async def start(ctx, exercise=None):
     async for notification in session.start(exercise):
         message = await format_message(notification)
 
-        await ctx.send(message)
+        if isinstance(message, discord.File):
+            await ctx.send(file=message)
+        else:
+            await ctx.send(message)
 
 
 async def stop(ctx):
