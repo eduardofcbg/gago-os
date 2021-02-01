@@ -8,7 +8,7 @@ from discord.ext.commands import Bot, Group, Command
 from bot.bot import Session as BotSession, Chart
 from chart import get_scores as get_chart_scores, convert_svg_png
 from render.discord import DiscordEnv as DiscordRenderEnv, DiscordTextMessage
-from render.svg_chart import SVGChartEnv as ChartRenderEnv
+from render.chart import SVGChartEnv as ChartRenderEnv
 from users import get_users as get_os_users
 from utils import run_in_executor
 
@@ -114,7 +114,7 @@ bot.add_command(group)
 if __name__ == "__main__":
     import logging
 
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
 
     TOKEN = os.environ["DISCORD_BOT_TOKEN"]
 
