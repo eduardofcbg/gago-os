@@ -2,15 +2,12 @@
 version: "3.7"
 services:
   gago:
-    tty: true
-    stdin_open: true
     build:
       context: .
     ports:
       - "2222:22"
     environment:
       - PASS=${PASSWORD}
-      - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
       - TZ=Europe/London
     volumes:
       - ./home:/home
@@ -22,4 +19,16 @@ services:
       - ./etc/group:/opt/etc/group
       - ./etc/gshadow:/opt/etc/gshadow
       - ./snapshots:/snapshots
-    restart: always
+    restart: unless-stopped
+  discord:
+    build:
+      context: .
+    working_dir: /leaderboard
+    entrypoint: python3 -m bot.discrd
+    environment:
+      - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
+      - TZ=Europe/London
+    volumes:
+      - ./leaderboard:/leaderboard
+      - ./home:/home
+      - ./config:/config

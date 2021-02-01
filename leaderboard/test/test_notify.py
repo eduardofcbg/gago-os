@@ -1,11 +1,10 @@
 import unittest
+from datetime import datetime
 from unittest.mock import patch, call
 
-from datetime import datetime
-
-from notify import pull_notifications, create_progress, create_periodic
-from notify import Headstart, Win, FinishPlace, Setback, Winning
 from clock import Clock
+from notify import Headstart, Win, FinishPlace, Setback, Winning
+from notify import pull_notifications, create_progress, create_periodic
 
 
 class TestNotify(unittest.IsolatedAsyncioTestCase):
@@ -13,7 +12,7 @@ class TestNotify(unittest.IsolatedAsyncioTestCase):
     @patch("notify.create_periodic", return_value=["periodic_notification"])
     @patch("notify.score", side_effect=[{"user1": 50}, {"user1": 100}])
     async def test_pull_notifications(
-        self, score, create_periodic, create_progress
+            self, score, create_periodic, create_progress
     ):
         notifications = pull_notifications(None)
         pulled = []
@@ -46,7 +45,7 @@ class TestNotify(unittest.IsolatedAsyncioTestCase):
     @patch("notify.create_periodic", return_value=[])
     @patch("notify.score", return_value={})
     async def test_pull_notifications_sleep_time(
-        self, score, create_periodic, create_progress
+            self, score, create_periodic, create_progress
     ):
         start_time = datetime.now()
 
@@ -72,7 +71,7 @@ class TestNotify(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(list(progress), expected_progress)
 
-    def test_create_progress_headstart(self):
+    def test_create_progress_headstart_acc(self):
         acc_notifications = [Headstart(user="user2")]
         previous_scores = {"user1": 0, "user2": 10}
         new_scores = {"user1": 10, "user2": 11}
@@ -169,4 +168,4 @@ class TestNotify(unittest.IsolatedAsyncioTestCase):
         clock.tick(1)
         periodic = create_periodic(new_scores, clock)
 
-        self.assertEqual(list(periodic), [Winning(users={"user2", "user3"})])
+        self.assertCountEqual(list(periodic), [Winning(users=["user2", "user3"])])

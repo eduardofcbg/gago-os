@@ -1,5 +1,6 @@
 home
 snapshots
+.env
 
 .DS_Store
 

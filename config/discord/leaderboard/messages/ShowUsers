@@ -1,17 +1,17 @@
-{% if user_discord_mention %}
+{% if user_to_mention %}
 ✅ **Utilizadores registados**
-{% for (user, mention) in user_discord_mention.items() %}
+{% for (user, mention) in user_to_mention.items() %}
 {{user}} {{mention}}
 {% endfor %}
 {% endif %}
 
-{% if members_not_user %}
+{% if unregistered_mentions %}
 ❌ **Utilizadores não registados**
-{% for mention in members_not_user %} {{mention}}{% endfor %}
+{% for mention in unregistered_mentions %} {{mention}}{% endfor %}
 {% endif %}
 
 
-{% if users_not_member %}
+{% if unregistered_users %}
 ✨ **Utilizadores disponíveis**
-{% for user in users_not_member %}{{user}} {% endfor %}
+{% for user in unregistered_users %}{{user}} {% endfor %}
 {% endif %}

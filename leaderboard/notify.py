@@ -1,17 +1,17 @@
-import sys
 import asyncio
+import sys
 from dataclasses import dataclass
-from typing import Set
 from itertools import chain
+from typing import List
 
-from utils import run_in_executor
-from exercises.score import score
 from clock import Clock
+from exercises.score import score
+from utils import run_in_executor
 
 
 @dataclass
 class Winning:
-    users: Set[str]
+    users: List[str]
 
 
 @dataclass
@@ -37,10 +37,13 @@ class Win:
 
 
 def create_periodic(new_scores, clock):
-    def is_current_minute_multiple_of(*, minutes):
+    def is_current_minute_multiple_of(**delta_args):
+        periodic_tick = clock.tick_for(**delta_args)
+
         return (
-            clock.current_tick != 0
-            and clock.current_tick % clock.tick_for(minutes=minutes) == 0
+                clock.current_tick != 0
+                and periodic_tick != 0
+                and clock.current_tick % periodic_tick == 0
         )
 
     def winning_users():
@@ -51,8 +54,8 @@ def create_periodic(new_scores, clock):
             if score > 0 and score == max_score
         ]
 
-    if is_current_minute_multiple_of(minutes=20):
-        yield Winning(users=set(winning_users()))
+    if is_current_minute_multiple_of(minutes=1):
+        yield Winning(users=winning_users())
 
 
 def create_progress(new_scores, previous_scores, acc_notifications):

@@ -1,6 +1,5 @@
-import unittest
-
 import time
+import unittest
 
 from clock import Clock
 

@@ -1,11 +1,11 @@
 import sys
-from time import sleep
 from operator import itemgetter
+from time import sleep
 
 from dashing import VSplit, HSplit, HGauge
 
-from exercises.score import score
 from clock import Clock
+from exercises.score import score
 
 
 def chunks(l, n):

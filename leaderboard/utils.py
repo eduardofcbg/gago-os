@@ -1,8 +1,8 @@
 import asyncio
-from functools import wraps, partial
-from subprocess import Popen, PIPE
-from os import path
 from contextlib import suppress
+from functools import wraps, partial
+from os import path
+from subprocess import Popen, PIPE
 
 
 def run_command(command):
