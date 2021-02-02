@@ -1,3 +1,4 @@
+import asyncio
 import io
 import os
 from dataclasses import dataclass
@@ -47,13 +48,18 @@ async def gago(ctx, subcommand):
 
 
 async def start(ctx, exercise=None):
-    async for notification in session.start(exercise):
-        message = await format_message(notification)
+    async def push_notifications(channel_id):
+        async for notification in session.start(exercise):
+            channel = bot.get_channel(channel_id)
+            message = await format_message(notification)
 
-        if isinstance(message, discord.File):
-            await ctx.send(file=message)
-        else:
-            await ctx.send(message)
+            if isinstance(message, discord.File):
+                await channel.send(file=message)
+            else:
+                await channel.send(message)
+
+    channel_id = ctx.channel.id
+    asyncio.create_task(push_notifications(channel_id))
 
 
 async def stop(ctx):

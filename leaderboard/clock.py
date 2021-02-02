@@ -45,3 +45,12 @@ class Clock:
 
     def tick_for(self, **delta_args):
         return int(timedelta(**delta_args) / self.delta)
+
+    def is_multiple_of(self, **delta_args):
+        tick_at_delta = self.tick_for(**delta_args)
+
+        return (
+            self.current_tick != 0
+            and tick_at_delta != 0
+            and self.current_tick % tick_at_delta == 0
+        )

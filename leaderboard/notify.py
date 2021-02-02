@@ -44,23 +44,13 @@ class Surpass:
     surpassed: Set
 
 
-def is_multiple_of(clock, **delta_args):
-    periodic_tick = clock.tick_for(**delta_args)
-
-    return (
-        clock.current_tick != 0
-        and periodic_tick != 0
-        and clock.current_tick % periodic_tick == 0
-    )
-
-
 def winning_users(scores):
     max_score = max(scores.values())
     return [user for user, score in scores.items() if score > 0 and score == max_score]
 
 
 def create_periodic(scores, clock):
-    if is_multiple_of(clock, minutes=20):
+    if clock.is_multiple_of(minutes=20):
         yield Winning(users=winning_users(scores))
 
 
