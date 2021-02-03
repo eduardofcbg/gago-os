@@ -142,6 +142,8 @@ class Session:
             return NotRunning()
 
         await cancel_gen(self.notifications)
+        self.notifications = None
+
         return Stop(exercise=self.exercise)
 
     def chart(self, exercise=None):
