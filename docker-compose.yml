@@ -1,5 +1,5 @@
 ---
-version: "3.7"
+version: "3.3"
 services:
   gago:
     build:
@@ -32,3 +32,4 @@ services:
       - ./leaderboard:/leaderboard
       - ./home:/home
       - ./config:/config
+    restart: unless-stopped
