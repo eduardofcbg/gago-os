@@ -76,6 +76,16 @@ async def stop(ctx):
     await ctx.reply(message)
 
 
+async def periodic(ctx):
+    channel_id = ctx.channel.id
+    session = session_manager.get_session(channel_id)
+
+    notification = session.toggle_periodic()
+    message = await format_message(notification, session)
+
+    await ctx.reply(message)
+
+
 async def set_user(ctx, user=None):
     member = ctx.message.author
     channel_id = ctx.channel.id
@@ -127,6 +137,7 @@ def is_admin(ctx):
 
 group.add_command(Command(start, checks=[is_admin]))
 group.add_command(Command(stop, checks=[is_admin]))
+group.add_command(Command(periodic, checks=[is_admin]))
 group.add_command(Command(set_user, name="user", aliases=("setuser",)))
 group.add_command(Command(show_users, name="users"))
 group.add_command(Command(chart, aliases=("scores", "leaderboard")))
