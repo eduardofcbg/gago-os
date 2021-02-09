@@ -11,8 +11,12 @@ from exercises.score import score
 from utils import run_in_executor
 
 
+class Periodic:
+    pass
+
+
 @dataclass
-class Winning:
+class Winning(Periodic):
     users: List
 
 

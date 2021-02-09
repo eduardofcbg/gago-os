@@ -12,5 +12,9 @@ max_number_errors = 12
 
 def score(user):
     work_dir = f"/home/{user}/scripting1"
+    error_count = count_errors(work_dir)
 
-    return int(100 * (1 - count_errors(work_dir) / max_number_errors))
+    if error_count > max_number_errors:
+        raise ValueError(f"Found {work_dir} errors, than expected {max_number_errors}")
+
+    return int(100 * (1 - error_count / max_number_errors))

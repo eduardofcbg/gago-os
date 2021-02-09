@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, List
 
 from exercises.score import is_valid_exercise
-from notify import pull_notifications, Surpass, Winning, Win, FinishPlace
+from notify import pull_notifications, Surpass, Winning, Win, FinishPlace, Periodic
 from utils import cancel_gen
 
 
@@ -54,6 +54,16 @@ class Stop:
 
 
 @dataclass
+class EnabledPeriodic:
+    pass
+
+
+@dataclass
+class DisabledPeriodic:
+    pass
+
+
+@dataclass
 class NoExercise:
     pass
 
@@ -74,6 +84,7 @@ class Session:
         self.user_to_member = {}
         self.notifications = None
         self.exercise = None
+        self.send_periodic = True
 
     @property
     def running(self):
@@ -132,6 +143,9 @@ class Session:
             yield Chart(exercise=self.exercise)
 
             async for notification in self.notifications:
+                if isinstance(notification, Periodic) and not self.send_periodic:
+                    continue
+
                 yield notification
 
                 if isinstance(notification, (Surpass, Winning, Win, FinishPlace)):
@@ -146,6 +160,11 @@ class Session:
         self.exercise = None
 
         return Stop(exercise=self.exercise)
+
+    def toggle_periodic(self):
+        self.send_periodic = not self.send_periodic
+
+        return EnabledPeriodic() if self.send_periodic else DisabledPeriodic()
 
     def chart(self, exercise=None):
         chart_exercise = self.exercise or exercise
