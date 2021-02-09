@@ -143,6 +143,7 @@ class Session:
 
         await cancel_gen(self.notifications)
         self.notifications = None
+        self.exercise = None
 
         return Stop(exercise=self.exercise)
 
