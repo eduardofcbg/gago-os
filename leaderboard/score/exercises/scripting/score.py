@@ -1,4 +1,4 @@
-from utils import run_command
+from score.scripts.local import run_command
 
 
 def count_errors(work_dir):

@@ -5,7 +5,7 @@ from time import sleep
 from dashing import VSplit, HSplit, HGauge
 
 from clock import Clock
-from exercises.score import score
+from score.exercises.score import score
 
 
 def chunks(l, n):

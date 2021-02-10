@@ -4,7 +4,7 @@ from typing import Any
 
 import cairosvg
 
-from exercises.score import score as get_score
+from score.exercises.score import score as get_score
 
 
 @dataclass

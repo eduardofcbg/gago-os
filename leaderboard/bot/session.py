@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Any, Dict, List
 
-from exercises.score import is_valid_exercise
+from score.exercises.score import is_valid_exercise
 from notify import pull_notifications, Surpass, Winning, Win, FinishPlace, Periodic
 from utils import cancel_gen
 

@@ -1,4 +1,5 @@
-from utils import run_command, dir_exists
+from os import path
+from score.scripts.local import run_command
 
 
 def get_diff_lines(dir1, dir2):
@@ -14,7 +15,7 @@ max_diff_lines = 13
 def score(user):
     work_dir = f"/home/{user}/navigation"
 
-    if not dir_exists(work_dir):
+    if not path.isdir(work_dir):
         return 0
 
     diff_lines = get_diff_lines(work_dir, solved_dir)

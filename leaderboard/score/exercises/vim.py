@@ -1,6 +1,7 @@
+from os import path
 from functools import lru_cache
 
-from utils import run_command, file_exists
+from score.scripts.local import run_command
 
 
 def get_diff_lines(working_file):
@@ -17,7 +18,7 @@ def get_max_diff_lines():
 def score(user):
     working_file = f"/home/{user}/tonecas"
 
-    if not file_exists(working_file):
+    if not path.exists(working_file):
         return 0
 
     diff_lines = get_diff_lines(working_file)

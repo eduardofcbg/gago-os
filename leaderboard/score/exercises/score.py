@@ -1,12 +1,12 @@
-from exercises.navigation import score as score_navigation
-from exercises.scripting1.score import score as score_scripting1
-from exercises.vim import score as score_vim
+from score.exercises.navigation import score as score_navigation
+from score.exercises.scripting import score as score_scripting
+from score.exercises.vim import score as score_vim
 from users import get_users
 
 score_exercise = {
     "vim": score_vim,
     "navigation": score_navigation,
-    "scripting1": score_scripting1,
+    "scripting": score_scripting,
 }
 
 

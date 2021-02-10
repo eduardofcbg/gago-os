@@ -7,7 +7,7 @@ from operator import itemgetter
 from typing import List, Any, Set
 
 from clock import Clock
-from exercises.score import score
+from score.exercises.score import score
 from utils import run_in_executor
 
 
