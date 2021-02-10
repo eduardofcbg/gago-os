@@ -9,10 +9,9 @@ from discord.ext.commands import Bot, Group, Command
 from bot.session import Chart
 from bot.session_manager import SessionManager
 from chart import get_scores as get_chart_scores, convert_svg_png
-from render.discrd import DiscordEnv as DiscordRenderEnv, DiscordTextMessage
 from render.chart import SVGChartEnv as ChartRenderEnv
+from render.discrd import DiscordEnv as DiscordRenderEnv, DiscordTextMessage
 from users import get_users as get_os_users
-from utils import run_in_executor
 
 users = get_os_users()
 session_manager = SessionManager(users)
@@ -23,20 +22,19 @@ class SubcommandNotFound:
     subcommand: str
 
 
-def create_chart_file(session, exercise):
+async def create_chart_file(session, exercise):
     chart_render_env = ChartRenderEnv(session)
 
-    scores = get_chart_scores(session.registered_users, exercise)
+    scores = await get_chart_scores(session.registered_users, exercise)
     svg_text = chart_render_env.render(scores=scores)
     png_bytes = convert_svg_png(svg_text)
 
     return discord.File(io.BytesIO(png_bytes), filename="chart.png")
 
 
-@run_in_executor
-def format_message(notification, session=None):
+async def format_message(notification, session=None):
     if isinstance(notification, Chart):
-        return create_chart_file(session, notification.exercise)
+        return await create_chart_file(session, notification.exercise)
 
     else:
         discord_render_env = DiscordRenderEnv(session)

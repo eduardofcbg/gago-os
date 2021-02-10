@@ -22,13 +22,12 @@ def _center_scores(dsc_scores):
     return centered_scores
 
 
-def get_scores(users, exercise):
+async def get_scores(users, exercise):
     if len(users) == 0:
         raise ValueError("No users to score")
 
-    dsc_scores = sorted(
-        get_score(exercise, users).items(), key=itemgetter(1), reverse=True
-    )
+    user_score = await get_score(exercise, users)
+    dsc_scores = sorted(user_score.items(), key=itemgetter(1), reverse=True)
     dsc_placed_users = [
         Score(user=user, xp=score, place=place)
         for place, (user, score) in enumerate(dsc_scores, 1)

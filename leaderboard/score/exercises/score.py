@@ -1,21 +1,38 @@
-from score.exercises.navigation import score as score_navigation
-from score.exercises.scripting import score as score_scripting
+import asyncio
+
 from score.exercises.vim import score as score_vim
+from score.exercises.navigation import score as score_navigation
+from score.exercises.scripting.score import score as score_scripting
+from score.exercises.http_server.score import score as score_http_server
 from users import get_users
 
-score_exercise = {
+score_exercise_sync = {
     "vim": score_vim,
     "navigation": score_navigation,
     "scripting": score_scripting,
 }
 
+score_exercise_async = {"http_server": score_http_server}
+
 
 def is_valid_exercise(exercise):
-    return exercise in score_exercise
+    return exercise in score_exercise_sync or exercise in score_exercise_async
 
 
-def score(exercise, users=None):
+async def score(exercise, users=None):
+    users = users or get_users()
+
     if not is_valid_exercise(exercise):
-        raise ValueError(f"Exercise {exercise} does not exist in {set(score_exercise)}")
+        raise ValueError(
+            f"Exercise {exercise} does not exist in {set(score_exercise_sync).union(score_exercise_async)}"
+        )
 
-    return {user: score_exercise[exercise](user) for user in users or get_users()}
+    if exercise in score_exercise_async:
+        score_fn = score_exercise_async[exercise]
+        scores = await asyncio.gather(*map(score_fn, users))
+
+        return dict(zip(users, scores))
+    else:
+        score_fn = score_exercise_sync[exercise]
+
+        return dict(zip(users, map(score_fn, users)))

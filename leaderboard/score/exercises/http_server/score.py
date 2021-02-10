@@ -1,5 +1,3 @@
-import asyncio
-
 from score.scripts.remote import run_script
 
 script_path = "/leaderboard/score/exercises/http_server/completed_log.sh"
@@ -12,6 +10,3 @@ async def score(user):
     number_completed = sum(1 for task in completed if task.strip())
 
     return int(number_completed / max_completed * 100)
-
-
-asyncio.run(score("ramane"))

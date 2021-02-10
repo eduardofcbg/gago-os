@@ -1,3 +1,4 @@
+import asyncio
 import sys
 from operator import itemgetter
 from time import sleep
@@ -29,23 +30,28 @@ def create_ui(scores):
     return HSplit(*columns)
 
 
+async def refresh_leaderboard(exercise, users):
+    clock = Clock()
+    clock.set_delta(seconds=10)
+    clock.start()
+
+    while True:
+        scores = await score(exercise, users)
+
+        ui = create_ui(scores)
+        ui.display()
+
+        sleep(clock.sleep_time())
+        clock.tick()
+
+
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
+    if len(sys.argv) < 2:
         sys.exit(
             f"Leaderboard must be for an exercise. For example 'display.py scripting1'."
         )
 
     exercise = sys.argv[1]
+    users = sys.argv[2::]
 
-    clock = Clock()
-    clock.set_delta(seconds=5)
-    clock.start()
-
-    while True:
-        scores = score(exercise)
-
-        ui = create_ui(scores)
-        ui.display()
-
-        sleep(clock.get_delta_seconds() + clock.lag())
-        clock.tick()
+    asyncio.run(refresh_leaderboard(exercise, users or None))

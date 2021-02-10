@@ -54,3 +54,6 @@ class Clock:
             and tick_at_delta != 0
             and self.current_tick % tick_at_delta == 0
         )
+
+    def sleep_time(self):
+        return self.get_delta_seconds() + self.lag()

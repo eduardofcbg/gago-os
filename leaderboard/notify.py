@@ -8,7 +8,6 @@ from typing import List, Any, Set
 
 from clock import Clock
 from score.exercises.score import score
-from utils import run_in_executor
 
 
 class Periodic:
@@ -116,21 +115,16 @@ def create_progress(new_scores, previous_scores, acc_notifications):
                 yield Headstart(user=user)
 
 
-@run_in_executor
-def score_async(exercise, users):
-    return score(exercise, users)
-
-
 async def pull_notifications(exercise, users=None):
     clock = Clock()
-    clock.set_delta(seconds=5)
+    clock.set_delta(seconds=10)
     clock.start()
 
     acc_notifications = []
     previous_scores = None
 
     while True:
-        new_scores = await score_async(exercise, users)
+        new_scores = await score(exercise, users)
 
         progress = create_progress(
             new_scores, previous_scores or new_scores, acc_notifications
@@ -144,7 +138,7 @@ async def pull_notifications(exercise, users=None):
         acc_notifications = [*acc_notifications, *notifications]
         previous_scores = new_scores
 
-        await asyncio.sleep(clock.get_delta_seconds() + clock.lag())
+        await asyncio.sleep(clock.sleep_time())
         clock.tick()
 
 

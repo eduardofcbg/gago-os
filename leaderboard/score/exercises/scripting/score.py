@@ -2,7 +2,7 @@ from score.scripts.local import run_command
 
 
 def count_errors(work_dir):
-    command = f"/leaderboard/score/exercises/scripting/errorlog.sh {work_dir} | wc -l"
+    command = f"/leaderboard/score/exercises/scripting/error_log.sh {work_dir} | wc -l"
 
     return int(run_command(command))
 
