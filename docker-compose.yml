@@ -4,6 +4,7 @@ services:
   gago:
     build:
       context: .
+    container_name: gago
     ports:
       - "127.0.0.1:2222:22"
     environment:
@@ -23,12 +24,15 @@ services:
   discord:
     build:
       context: .
+    container_name: discord
+    network_mode: host
     working_dir: /leaderboard
     entrypoint: python3 -m bot.discrd
     environment:
       - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
       - TZ=Europe/London
     volumes:
+      - /etc/hosts:/etc/hosts
       - ./leaderboard:/leaderboard
       - ./home:/home
       - ./config:/config

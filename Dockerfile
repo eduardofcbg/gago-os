@@ -6,7 +6,7 @@ RUN yes | unminimize
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
-    apt-get install -y pkg-config libcairo2-dev openssh-server tree vim nano curl zip unzip htop tar man sudo adduser less
+    apt-get install -y pkg-config iputils-ping libcairo2-dev openssh-server tree vim nano curl zip unzip htop tar man sudo adduser less
 
 COPY ./etc/vim/vimrc.local /etc/vim/vimrc.local
 
