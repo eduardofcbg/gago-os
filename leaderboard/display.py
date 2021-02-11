@@ -1,7 +1,6 @@
 import asyncio
 import sys
 from operator import itemgetter
-from time import sleep
 
 from dashing import VSplit, HSplit, HGauge
 
@@ -41,14 +40,14 @@ async def refresh_leaderboard(exercise, users):
         ui = create_ui(scores)
         ui.display()
 
-        sleep(clock.sleep_time())
+        await asyncio.sleep(clock.sleep_time())
         clock.tick()
 
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         sys.exit(
-            f"Leaderboard must be for an exercise. For example 'display.py scripting1'."
+            f"Leaderboard must be for an exercise. For example 'display.py scripting'."
         )
 
     exercise = sys.argv[1]
