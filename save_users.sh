@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./exec.sh save_users.sh
+./exec.sh /scripts/save_users.sh
