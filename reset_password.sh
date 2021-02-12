@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./exec.sh reset_password.sh "$@"
+./exec.sh /scripts/reset_password.sh "$@"
