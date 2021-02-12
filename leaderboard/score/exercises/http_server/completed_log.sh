@@ -22,6 +22,6 @@ cat /var/www/html/index.nginx-debian.html | grep -E 'href="\/?bem-vindos.html"' 
 
 cat /var/www/html/index.nginx-debian.html | grep -E 'href="\/?eu.html"' | grep -i "Mais sobre mim" | head -1
 
-cat /var/www/html/bem-vindos.html | grep -E 'href="\/"' | head -1
+cat /var/www/html/bem-vindos.html | grep -E '(href="\/")|(href="http:\/\/[^\/]+\/?$)' | head -1
 
-cat /var/www/html/eu.html | grep -E 'href="\/"' | head -1
+cat /var/www/html/eu.html | grep -E '(href="\/")|(href="http:\/\/[^\/]+\/?$)' | head -1
