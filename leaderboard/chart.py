@@ -11,7 +11,6 @@ from score.exercises.score import score as get_score
 class Score:
     user: Any
     xp: int
-    place: int
 
 
 def _center_scores(dsc_scores):
@@ -29,8 +28,8 @@ async def get_scores(users, exercise):
     user_score = await get_score(exercise, users)
     dsc_scores = sorted(user_score.items(), key=itemgetter(1), reverse=True)
     dsc_placed_users = [
-        Score(user=user, xp=score, place=place)
-        for place, (user, score) in enumerate(dsc_scores, 1)
+        Score(user=user, xp=score)
+        for user, score in dsc_scores
         if user in users
     ]
 

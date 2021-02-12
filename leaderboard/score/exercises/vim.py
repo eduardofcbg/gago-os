@@ -1,7 +1,7 @@
 from os import path
 from functools import lru_cache
 
-from score.scripts.local import run_command
+from score.execute.local import run_command
 
 
 def get_diff_lines(working_file):

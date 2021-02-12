@@ -6,14 +6,14 @@ RUN yes | unminimize
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
-    apt-get install -y pkg-config iputils-ping libcairo2-dev openssh-server tree vim nano curl zip unzip htop tar man sudo adduser less
+    apt-get install -y pkg-config iputils-ping openssh-server tree less vim nano curl zip unzip htop tar man sudo adduser libcairo2-dev
 
 COPY ./etc/vim/vimrc.local /etc/vim/vimrc.local
 
 RUN mkdir /var/run/sshd /root/.ssh
 
 RUN sed -ri 's/^#?PermitRootLogin\s+.*/PermitRootLogin yes/' /etc/ssh/sshd_config && \
-	sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config
+    sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config
 
 EXPOSE 22
 

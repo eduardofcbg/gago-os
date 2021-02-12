@@ -1,4 +1,4 @@
-from score.scripts.remote import run_script
+from score.execute.remote import run_script
 
 script_path = "/leaderboard/score/exercises/http_server/completed_log.sh"
 max_completed = 11

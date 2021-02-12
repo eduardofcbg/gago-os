@@ -156,10 +156,13 @@ class Session:
             return NotRunning()
 
         await cancel_gen(self.notifications)
+
+        message = Stop(exercise=self.exercise)
+
         self.notifications = None
         self.exercise = None
 
-        return Stop(exercise=self.exercise)
+        return message
 
     def toggle_periodic(self):
         self.send_periodic = not self.send_periodic

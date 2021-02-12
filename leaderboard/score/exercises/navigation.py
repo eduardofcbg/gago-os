@@ -1,5 +1,5 @@
 from os import path
-from score.scripts.local import run_command
+from score.execute.local import run_command
 
 
 def get_diff_lines(dir1, dir2):

@@ -73,10 +73,6 @@
 
       {% if score.xp > 0 %}
         <text class="score" dx="{{middle_x}}" y="{{bar_y + 15}}" text-anchor="middle">{{score.xp}}xp</text>
-        
-        {% if score.place <= 3 %}
-          <text class="level" dx="{{middle_x}}" y="{{bar_y + 30}}" text-anchor="middle" >#{{score.place}}</text>
-        {% endif %}
       {% endif %}
     </g>
   {% endfor %}

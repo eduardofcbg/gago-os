@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import sys
 from collections import OrderedDict
 from dataclasses import dataclass
@@ -124,22 +125,26 @@ async def pull_notifications(exercise, users=None):
     previous_scores = None
 
     while True:
-        new_scores = await score(exercise, users)
+        try:
+            new_scores = await score(exercise, users)
 
-        progress = create_progress(
-            new_scores, previous_scores or new_scores, acc_notifications
-        )
-        periodic = create_periodic(new_scores, clock)
-        notifications = list(chain(progress, periodic))
+            progress = create_progress(
+                new_scores, previous_scores or new_scores, acc_notifications
+            )
+            periodic = create_periodic(new_scores, clock)
+            notifications = list(chain(progress, periodic))
 
-        for notification in notifications:
-            yield notification
+            for notification in notifications:
+                yield notification
 
-        acc_notifications = [*acc_notifications, *notifications]
-        previous_scores = new_scores
+            acc_notifications = [*acc_notifications, *notifications]
+            previous_scores = new_scores
+        except IOError as e:
+            logging.exception(e)
+        finally:
+            await asyncio.sleep(clock.sleep_time())
 
-        await asyncio.sleep(clock.sleep_time())
-        clock.tick()
+            clock.tick()
 
 
 async def print_notifications(exercise):
@@ -149,7 +154,7 @@ async def print_notifications(exercise):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        sys.exit(f"Must specify exercise. For example 'navigation.py scripting1'.")
+        sys.exit(f"Must specify exercise. For example 'navigation.py scripting'.")
 
     exercise = sys.argv[1]
 

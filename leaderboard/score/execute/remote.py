@@ -1,4 +1,5 @@
 import pexpect
+from pexpect import ExceptionPexpect
 
 
 async def _run_script_ssh(user, host, password, script_path, port=22, args=None):
@@ -22,6 +23,7 @@ def _get_password(user):
 
 def _get_host(user):
     # Assumes correctly configured /etc/hosts file
+    # https://github.com/eduardofcgo/gago-node
     return user
 
 
@@ -30,6 +32,11 @@ def _get_user():
 
 
 async def run_script(user, script_path):
-    return await _run_script_ssh(
-        _get_user(), _get_host(user), _get_password(user), script_path
-    )
+    login_user = _get_user()
+    host = _get_host(user)
+    password = _get_password(user)
+
+    try:
+        return await _run_script_ssh(login_user, host, password, script_path)
+    except ExceptionPexpect:
+        raise IOError(login_user, host, password)

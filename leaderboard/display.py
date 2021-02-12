@@ -14,11 +14,11 @@ def chunks(l, n):
 
 
 def create_ui(scores):
-    sorted_scores = sorted(scores.items(), key=itemgetter(1), reverse=True)
+    dsc_scores = sorted(scores.items(), key=itemgetter(1), reverse=True)
 
     gauges = [
         HGauge(val=score, title=name, border_color=5, color=5)
-        for name, score in sorted_scores
+        for name, score in dsc_scores
     ]
 
     max_height = 20
