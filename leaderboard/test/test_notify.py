@@ -3,7 +3,7 @@ from datetime import datetime
 from unittest.mock import patch, call
 
 from clock import Clock
-from notify import Headstart, Win, FinishPlace, Setback, Winning, Surpass
+from notify import Headstart, Win, FinishPlace, Setback, Winning, Surpass, LevelUp
 from notify import pull_notifications, create_progress, create_periodic
 
 
@@ -55,7 +55,7 @@ class TestNotify(unittest.IsolatedAsyncioTestCase):
 
         measured_delay = (datetime.now() - start_time).total_seconds()
 
-        self.assertTrue(10 <= measured_delay <= 10.1, measured_delay)
+        self.assertTrue(19 <= measured_delay <= 21, measured_delay)
 
     def test_create_progress_headstart(self):
         acc_notifications = []
@@ -63,9 +63,13 @@ class TestNotify(unittest.IsolatedAsyncioTestCase):
         new_scores = {"user1": 10, "user2": 11}
 
         progress = create_progress(new_scores, previous_scores, acc_notifications)
-        expected_progress = [Headstart(user="user1")]
+        expected_progress = [
+            Headstart(user="user1"),
+            LevelUp(user="user1", score=10),
+            LevelUp(user="user2", score=11),
+        ]
 
-        self.assertEqual(list(progress), expected_progress)
+        self.assertCountEqual(list(progress), expected_progress)
 
     def test_create_progress_headstart_acc(self):
         acc_notifications = [Headstart(user="user2")]
@@ -73,9 +77,12 @@ class TestNotify(unittest.IsolatedAsyncioTestCase):
         new_scores = {"user1": 10, "user2": 11}
 
         progress = create_progress(new_scores, previous_scores, acc_notifications)
-        expected_progress = []
+        expected_progress = [
+            LevelUp(user="user1", score=10),
+            LevelUp(user="user2", score=11),
+        ]
 
-        self.assertEqual(list(progress), expected_progress)
+        self.assertCountEqual(list(progress), expected_progress)
 
     def test_create_progress_win(self):
         acc_notifications = [Win(user="user3", place=1)]
@@ -121,9 +128,11 @@ class TestNotify(unittest.IsolatedAsyncioTestCase):
         }
 
         progress = create_progress(new_scores, previous_scores, acc_notifications)
-        expected_progress = [FinishPlace(user="user5", place=5)]
+        expected_progress = [
+            FinishPlace(user="user5", place=5),
+        ]
 
-        self.assertEqual(list(progress), expected_progress)
+        self.assertCountEqual(list(progress), expected_progress)
 
     def test_create_progress_setback(self):
         acc_notifications = []
@@ -160,8 +169,9 @@ class TestNotify(unittest.IsolatedAsyncioTestCase):
 
         progress = create_progress(new_scores, previous_scores, acc_notifications)
         expected_progress = [
-            Surpass(user="user3", surpassed={"user1", "user2"}),
-            Surpass(user="user4", surpassed={"user2", "user3"}),
+            Surpass(user="user3", surpassed={"user1", "user2"}, score=90),
+            Surpass(user="user4", surpassed={"user2", "user3"}, score=80),
+            LevelUp(user="user2", score=60),
         ]
 
         self.assertCountEqual(list(progress), expected_progress)

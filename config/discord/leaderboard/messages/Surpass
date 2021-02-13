@@ -1,1 +1,1 @@
-{{user | mention}} 💪 ultrapassou {% for surpassed_user in surpassed %}{{surpassed_user | mention}} {% endfor %} 🍼
+{{user | mention}} 💪 com {{score}} pontos ultrapassou {% for surpassed_user in surpassed %}{{surpassed_user | mention}} {% endfor %} 🍼

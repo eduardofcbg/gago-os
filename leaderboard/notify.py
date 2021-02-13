@@ -26,6 +26,12 @@ class Setback:
 
 
 @dataclass
+class LevelUp:
+    user: Any
+    score: int
+
+
+@dataclass
 class FinishPlace:
     user: Any
     place: int
@@ -46,6 +52,7 @@ class Win:
 class Surpass:
     user: Any
     surpassed: Set
+    score: int
 
 
 def winning_users(scores):
@@ -99,7 +106,9 @@ def create_progress(new_scores, previous_scores, acc_notifications):
         }
 
         if surpassed:
-            yield Surpass(user=user, surpassed=surpassed)
+            yield Surpass(user=user, surpassed=surpassed, score=score)
+        elif score > previous_score and score != 100:
+            yield LevelUp(user, score=score)
 
         if score < previous_score:
             yield Setback(user)

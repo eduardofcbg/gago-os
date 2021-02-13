@@ -28,9 +28,7 @@ async def get_scores(users, exercise):
     user_score = await get_score(exercise, users)
     dsc_scores = sorted(user_score.items(), key=itemgetter(1), reverse=True)
     dsc_placed_users = [
-        Score(user=user, xp=score)
-        for user, score in dsc_scores
-        if user in users
+        Score(user=user, xp=score) for user, score in dsc_scores if user in users
     ]
 
     return _center_scores(dsc_placed_users)

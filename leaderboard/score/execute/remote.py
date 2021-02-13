@@ -3,7 +3,10 @@ from pexpect import ExceptionPexpect
 
 
 async def _run_script_ssh(user, host, password, script_path, port=22, args=None):
-    ssh_command = f'ssh {user}@{host} -p {port} -o "StrictHostKeyChecking=no" "bash -s" -- < {script_path} {args or ""}'
+    slip_host_key_check_args = (
+        "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+    )
+    ssh_command = f'ssh {user}@{host} -p {port} {slip_host_key_check_args} "bash -s" -- < {script_path} {args or ""}'
 
     child = pexpect.spawn("/bin/bash", ["-c", ssh_command], encoding="utf-8")
 

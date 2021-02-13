@@ -50,13 +50,16 @@ async def push_notifications(channel_id, exercise):
     session = session_manager.get_session(channel_id)
 
     async for notification in session.start(exercise):
-        channel = bot.get_channel(channel_id)
-        message = await format_message(notification, session)
+        try:
+            channel = bot.get_channel(channel_id)
+            message = await format_message(notification, session)
 
-        if isinstance(message, discord.File):
-            await channel.send(file=message)
-        else:
-            await channel.send(message)
+            if isinstance(message, discord.File):
+                await channel.send(file=message)
+            else:
+                await channel.send(message)
+        except (IOError, discord.DiscordException) as e:
+            logging.exception(e)
 
 
 async def start(ctx, exercise=None):
@@ -145,7 +148,7 @@ bot.add_command(group)
 if __name__ == "__main__":
     import logging
 
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
 
     TOKEN = os.environ["DISCORD_BOT_TOKEN"]
 
