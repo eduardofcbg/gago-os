@@ -148,7 +148,7 @@ class Session:
 
                 yield notification
 
-                if isinstance(notification, (Surpass, Winning, Win, FinishPlace)):
+                if isinstance(notification, (Surpass, Winning, Win, FinishPlace, Stop)):
                     yield Chart(exercise=self.exercise)
 
     async def stop(self):

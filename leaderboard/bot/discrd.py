@@ -1,6 +1,7 @@
 import asyncio
 import io
 import os
+import logging
 from dataclasses import dataclass
 
 import discord
@@ -146,8 +147,6 @@ group.add_command(Command(chart, aliases=("scores", "leaderboard")))
 bot.add_command(group)
 
 if __name__ == "__main__":
-    import logging
-
     logging.basicConfig(level=logging.DEBUG)
 
     TOKEN = os.environ["DISCORD_BOT_TOKEN"]
