@@ -9,10 +9,12 @@ from discord.ext.commands import Bot, Group, Command
 
 from bot.session import Chart
 from bot.session_manager import SessionManager
-from chart import get_scores as get_chart_scores, convert_svg_png
+from chart import convert_svg_png
 from render.chart import SVGChartEnv as ChartRenderEnv
-from render.discrd import DiscordEnv as DiscordRenderEnv, DiscordTextMessage
+from render.text_message import DiscordEnv as DiscordRenderEnv, DiscordTextMessage
 from users import get_users as get_os_users
+from utils import run_in_executor
+
 
 users = get_os_users()
 session_manager = SessionManager(users)
@@ -23,11 +25,11 @@ class SubcommandNotFound:
     subcommand: str
 
 
-async def create_chart_file(session, exercise):
+@run_in_executor
+def create_chart_file(session, chart_scores):
     chart_render_env = ChartRenderEnv(session)
 
-    scores = await get_chart_scores(session.registered_users, exercise)
-    svg_text = chart_render_env.render(scores=scores)
+    svg_text = chart_render_env.render(scores=chart_scores)
     png_bytes = convert_svg_png(svg_text)
 
     return discord.File(io.BytesIO(png_bytes), filename="chart.png")
@@ -35,7 +37,7 @@ async def create_chart_file(session, exercise):
 
 async def format_message(notification, session=None):
     if isinstance(notification, Chart):
-        return await create_chart_file(session, notification.exercise)
+        return await create_chart_file(session, notification.chart_scores)
 
     else:
         discord_render_env = DiscordRenderEnv(session)
@@ -59,7 +61,7 @@ async def push_notifications(channel_id, exercise):
                 await channel.send(file=message)
             else:
                 await channel.send(message)
-        except (IOError, discord.DiscordException) as e:
+        except discord.DiscordException as e:
             logging.exception(e)
 
 
@@ -142,7 +144,7 @@ group.add_command(Command(stop, checks=[is_admin]))
 group.add_command(Command(periodic, checks=[is_admin]))
 group.add_command(Command(set_user, name="user", aliases=("setuser",)))
 group.add_command(Command(show_users, name="users"))
-group.add_command(Command(chart, aliases=("scores", "leaderboard")))
+group.add_command(Command(chart, aliases=("scores", "src")))
 
 bot.add_command(group)
 

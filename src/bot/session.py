@@ -1,6 +1,8 @@
+import logging
 from dataclasses import dataclass
 from typing import Any, Dict, List
 
+from chart import get_scores, Score
 from score.exercises.score import is_valid_exercise
 from notify import pull_notifications, Surpass, Winning, Win, FinishPlace, Periodic
 from utils import cancel_gen
@@ -75,7 +77,7 @@ class InvalidExercise:
 
 @dataclass
 class Chart:
-    exercise: Any
+    chart_scores: List[Score]
 
 
 class Session:
@@ -100,6 +102,9 @@ class Session:
             for user, member in self.user_to_member.items()
             if member != deregister_member
         }
+
+    def _get_chart_scores(self, exercise):
+        return get_scores(self.registered_users, exercise)
 
     def register(self, user, member):
         if user not in self.users:
@@ -140,7 +145,12 @@ class Session:
             self.exercise = exercise
 
             yield Go()
-            yield Chart(exercise=self.exercise)
+
+            try:
+                chart_scores = await self._get_chart_scores(self.exercise)
+                yield Chart(chart_scores=chart_scores)
+            except IOError as e:
+                logging.exception(e)
 
             async for notification in self.notifications:
                 if isinstance(notification, Periodic) and not self.send_periodic:
@@ -149,7 +159,11 @@ class Session:
                 yield notification
 
                 if isinstance(notification, (Surpass, Winning, Win, FinishPlace, Stop)):
-                    yield Chart(exercise=self.exercise)
+                    try:
+                        chart_scores = await self._get_chart_scores(self.exercise)
+                        yield Chart(chart_scores=chart_scores)
+                    except IOError as e:
+                        logging.exception(e)
 
     async def stop(self):
         if not self.running:
@@ -177,4 +191,5 @@ class Session:
         elif not is_valid_exercise(chart_exercise):
             return InvalidExercise(exercise=chart_exercise)
         else:
-            return Chart(exercise=chart_exercise)
+            chart_scores = await self._get_chart_scores(self.exercise)
+            yield Chart(chart_scores=chart_scores)

@@ -5,4 +5,4 @@ destination=/snapshots/${now}
 
 cp -a /home/. $destination
 
-echo Snapshot saved at $destination
+echo "Snapshot saved at $destination"

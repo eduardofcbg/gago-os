@@ -1,5 +1,7 @@
 #!/bin/bash
 
-cd /leaderboard
+set -e
+
+cd /src
 
 python3 -m unittest

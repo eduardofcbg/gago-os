@@ -12,7 +12,7 @@ services:
       - TZ=Europe/London
     volumes:
       - ./home:/home
-      - ./leaderboard:/leaderboard
+      - ./src:/src
       - ./scripts:/scripts
       - ./config:/config
       - ./etc/passwd:/opt/etc/passwd
@@ -26,14 +26,14 @@ services:
       context: .
     container_name: discord
     network_mode: host
-    working_dir: /leaderboard
-    entrypoint: python3 -m bot.discrd
+    working_dir: /src
+    entrypoint: python3 -m bot.discrd.discrd
     environment:
       - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
       - TZ=Europe/London
     volumes:
       - /etc/hosts:/etc/hosts
-      - ./leaderboard:/leaderboard
+      - ./src:/src
       - ./home:/home
       - ./config:/config
     restart: unless-stopped

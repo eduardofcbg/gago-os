@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker-compose run -w /leaderboard gago python3 display.py "$@"
+docker-compose run gago python3 /src/leaderboard.py "$@"

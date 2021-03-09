@@ -5,7 +5,7 @@ class SVGChartEnv:
     def __init__(self, session):
         self.session = session
         self.template_env = Environment(
-            loader=FileSystemLoader("/config/discord/leaderboard"),
+            loader=FileSystemLoader("/config/discord/src"),
             auto_reload=True,
         )
         self.template_env.filters["mention"] = self._mention

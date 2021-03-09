@@ -6,7 +6,7 @@ RUN yes | unminimize
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
-    apt-get install -y pkg-config iputils-ping openssh-server tree less vim nano curl zip unzip htop tar man sudo adduser libcairo2-dev
+    apt-get install -y pkg-config iputils-ping expect openssh-server tree less vim nano curl zip unzip htop tar man sudo adduser libcairo2-dev
 
 COPY ./etc/vim/vimrc.local /etc/vim/vimrc.local
 
@@ -17,9 +17,9 @@ RUN sed -ri 's/^#?PermitRootLogin\s+.*/PermitRootLogin yes/' /etc/ssh/sshd_confi
 
 EXPOSE 22
 
-COPY ./leaderboard/requirements.txt /leaderboard/
+COPY requirements.txt /src/
 RUN apt-get install -y python3-pip && \
-    pip3 install -r /leaderboard/requirements.txt
+    pip3 install -r /src/requirements.txt
 
 COPY entrypoint.sh /root
 CMD ["/root/entrypoint.sh"]
