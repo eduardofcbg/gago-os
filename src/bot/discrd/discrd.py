@@ -10,8 +10,8 @@ from discord.ext.commands import Bot, Group, Command
 from bot.session import Chart
 from bot.session_manager import SessionManager
 from chart import convert_svg_png
-from render.chart import SVGChartEnv as ChartRenderEnv
-from render.text_message import DiscordEnv as DiscordRenderEnv, DiscordTextMessage
+from bot.discrd.render.chart import SVGChartEnv as ChartRenderEnv
+from bot.discrd.render.text_message import DiscordEnv as DiscordRenderEnv, DiscordTextMessage
 from users import get_users as get_os_users
 from utils import run_in_executor
 
@@ -117,7 +117,7 @@ async def chart(ctx, exercise=None):
     channel_id = ctx.channel.id
     session = session_manager.get_session(channel_id)
 
-    notification = session.chart(exercise)
+    notification = await session.chart(exercise)
     message = await format_message(notification, session)
 
     if isinstance(message, discord.File):

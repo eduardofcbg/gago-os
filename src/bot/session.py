@@ -183,13 +183,13 @@ class Session:
 
         return EnabledPeriodic() if self.send_periodic else DisabledPeriodic()
 
-    def chart(self, exercise=None):
+    async def chart(self, exercise=None):
         chart_exercise = self.exercise or exercise
 
         if not chart_exercise:
-            return NoExercise()
+            yield NoExercise()
         elif not is_valid_exercise(chart_exercise):
-            return InvalidExercise(exercise=chart_exercise)
+            yield InvalidExercise(exercise=chart_exercise)
         else:
             chart_scores = await self._get_chart_scores(self.exercise)
             yield Chart(chart_scores=chart_scores)
