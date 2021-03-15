@@ -2,7 +2,7 @@ import asyncio
 
 from score.exercises.vim import score as score_vim
 from score.exercises.navigation import score as score_navigation
-from score.exercises.scripting.score import score as score_scripting
+from score.exercises.scripting1.score import score as score_scripting
 from score.exercises.http_server.score import score as score_http_server
 from users import get_users
 
