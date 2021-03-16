@@ -1,3 +1,18 @@
+- Consulta a pasta '/config/exercicios/scripting2/'. Deveras encontrar os dois ficheiros que vais utilizar - o ficheiro 'games' e 'scores'. Consulta ambos os ficheiros. Estes ficheiros pertencem a uma base de dados do site metacritic.com. Repara como os dados estao organizados em tabela. De que que assunto se trata e que dados consegues extrair?
+- Utiliza o comando tail para obteres o ficheiro sem mostrar o cabecalho com os nomes das colunas. Deveras usar por exemplo o less para consultar o resultado, pois o cat ira imprimir o ficheiro todo na consola.
+- Cria um script na tua home chamado scripting2 que imprime por ordem os resultados e completa as tarefas seguintes. O teu script pode criar ficheiros intermedios caso precisares.
 
-- Exercicio simples do comando man, head, tail, wc -l, grep
--
+  1. Imprime o numero total de jogos existentes
+  2. Imprime numero total de jogos existentes para a PlayStation 3
+  3. Cria um ficheiro chamado jogos_nintendo que contem um lista de todos os jogos nintendo (mostra a linhas completas da tabela)
+  4. Cria um ficheiro chamado jogos_open_world que contem todos os jogos Open World (mundo aberto). Desta vez em vez de mostrar a linha da tabela completa, devera apenas mostrar o nome do jogo em cada linha. Confirma que nao tens repetidos e que estao por ordem alfabetica.
+  5. Cria um ficheiro chamado jogos_shadow que contem todos os jogos que o utilizador Shadow1 avaliou. Confirma que nao tens repetidos e que estao por ordem alfabetica.
+  6. Imprime as 2 notas mais altas que foram dadas ao jogo LEGO The Lord of the Rings.
+  7. Imprime o numero de vezes que avaliaram com nota maxima o jogo Lego The Lord of the Rings.
+  8. Imprime os utilizadores que deram a nota mais baixa ao jogo LEGO The Lord of the Rings, por ordem alfabetica.
+  9. Imprime o numero total de utilizadores
+  10. Imprime o numero de vezes que o utilizador Zilcell avaliou um jogo com a nota menor ou igual a 6.
+  11. Imprime o nome do utilizador que avaliou mais jogos.
+  12. Imprime a consola favorita dos utilizadores. A consola favorita e a consola que o utilizadores deram mais notas a jogos.
+  13. Imprime a consola favorita do utilizador Zilcell. 
+  14. Imprime o numero de jogos open world que o utilizador Shadow1 avaliou. Usa os ficheiros que criaste anteriormente jogos_open_world e jogos_shadow. Lembra-te que cat pode ser usado para juntar varios ficheiros.

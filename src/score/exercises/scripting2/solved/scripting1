@@ -1,0 +1,35 @@
+#!/bin/bash
+
+cd /config/exercicios/scripting2
+
+solved_dir="/src/score/exercises/scripting2/solved"
+
+exec > ${solved_dir}/out
+
+cat games | wc -l
+
+cat games | grep PlayStation3 | wc -l
+
+cat games | grep Nintendo > ${solved_dir}/jogos_nintendo
+
+cat games | grep Open-World | awk -F '|' '{print $1}' | sort | uniq > ${solved_dir}/jogos_open_world
+
+cat scores | grep Shadow1 | awk -F '|' '{print $1}' | sort | uniq > ${solved_dir}/jogos_shadow
+
+cat scores | grep "LEGO The Lord of the Rings" | awk -F '|' '{print $3}' | sort -n -r | uniq | head -n 2
+
+cat scores | grep "LEGO The Lord of the Rings" | awk -F '|' '$3 == 10'| wc -l
+
+cat scores | grep "LEGO The Lord of the Rings" | sort -n -k 3 -t '|' | head -n 3 | awk -F '|' '{print $4}' | sort
+
+cat scores | awk -F '|' '{print $4}' | sort | uniq | wc -l
+
+cat scores | grep 'Zilcell' | awk -F '|' '$3 <= 6' | wc -l
+
+cat scores | awk -F '|' '{print $4}' | sort | uniq -c | sort -n -k 1 -r | head -n 1 | awk '{print $2}'
+
+cat scores | awk -F '|' '{print $2}' | sort | uniq -c | sort -n -k 1 -r | head -n 1 | awk '{print $2}'
+
+cat scores | grep Zilcell | awk -F '|' '{print $2}' | sort | uniq -c | sort -n -k 1 -r | head -n 1 | awk '{print $2}'
+
+cat ${solved_dir}/jogos_open_world ${solved_dir}/jogos_shadow | sort | uniq -c | awk '$1 == 2' | wc -l
