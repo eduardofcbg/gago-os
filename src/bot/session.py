@@ -191,5 +191,5 @@ class Session:
         elif not is_valid_exercise(chart_exercise):
             yield InvalidExercise(exercise=chart_exercise)
         else:
-            chart_scores = await self._get_chart_scores(self.exercise)
+            chart_scores = await self._get_chart_scores(chart_exercise)
             yield Chart(chart_scores=chart_scores)
