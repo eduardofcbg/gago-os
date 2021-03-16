@@ -6,8 +6,9 @@ def run_score_script(user, work_dir):
 
     return int(run_command(command, cwd=work_dir))
 
+
 def get_max_score():
-    return 17 
+    return 17
 
 
 def score(user):
