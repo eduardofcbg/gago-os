@@ -7,7 +7,7 @@
   3. Cria um ficheiro chamado jogos_nintendo que contem um lista de todos os jogos nintendo (mostra a linhas completas da tabela)
   4. Cria um ficheiro chamado jogos_open_world que contem todos os jogos Open World (mundo aberto). Desta vez em vez de mostrar a linha da tabela completa, devera apenas mostrar o nome do jogo em cada linha. Confirma que nao tens repetidos e que estao por ordem alfabetica.
   5. Cria um ficheiro chamado jogos_shadow que contem todos os jogos que o utilizador Shadow1 avaliou. Confirma que nao tens repetidos e que estao por ordem alfabetica.
-  6. Imprime as 2 notas mais altas que foram dadas ao jogo LEGO The Lord of the Rings.
+  6. Imprime as 2 notas mais altas que foram dadas ao jogo LEGO The Lord of the Rings, por ordem decrescente.
   7. Imprime o numero de vezes que avaliaram com nota maxima o jogo Lego The Lord of the Rings.
   8. Imprime os utilizadores que deram a nota mais baixa ao jogo LEGO The Lord of the Rings, por ordem alfabetica.
   9. Imprime o numero total de utilizadores

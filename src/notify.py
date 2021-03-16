@@ -62,7 +62,9 @@ def winning_users(scores):
 
 def create_periodic(scores, clock):
     if clock.is_multiple_of(minutes=20):
-        yield Winning(users=winning_users(scores))
+        users = winning_users(scores)
+        if users:
+            yield Winning(users=users)
 
 
 def count_finish(notifications):
