@@ -6,7 +6,7 @@ services:
       context: .
     container_name: gago
     ports:
-      - "127.0.0.1:2222:22"
+      - "47060:22"
     environment:
       - PASS=${PASSWORD}
       - TZ=Europe/London

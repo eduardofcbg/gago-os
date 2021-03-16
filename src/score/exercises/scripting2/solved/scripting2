@@ -4,7 +4,7 @@ cd /config/exercicios/scripting2
 
 solved_dir="/src/score/exercises/scripting2/solved"
 
-cat games | wc -l
+cat games | tail -n +2 | wc -l
 
 cat games | grep PlayStation3 | wc -l
 
