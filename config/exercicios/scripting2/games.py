@@ -14,6 +14,5 @@ next(reader)
 writer.writerow(["title", "year", "publisher", "genre", "platform", "players"])
 
 for row in reader:
-    print("row", row)
     row_id, title, year, publisher, genre, platform, meta_score, user_score, players = row
     writer.writerow([title, year, publisher, genre, platform, players])

@@ -117,13 +117,13 @@ async def chart(ctx, exercise=None):
     channel_id = ctx.channel.id
     session = session_manager.get_session(channel_id)
 
-    notification = await session.chart(exercise)
-    message = await format_message(notification, session)
+    async for notification in session.chart(exercise):
+        message = await format_message(notification, session)
 
-    if isinstance(message, discord.File):
-        await ctx.reply(file=message)
-    else:
-        await ctx.reply(message)
+        if isinstance(message, discord.File):
+            await ctx.reply(file=message)
+        else:
+            await ctx.reply(message)
 
 
 intents = discord.Intents.default()

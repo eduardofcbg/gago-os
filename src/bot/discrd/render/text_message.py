@@ -16,7 +16,7 @@ class DiscordEnv:
     def __init__(self, session):
         self.session = session
         self.template_env = Environment(
-            loader=FileSystemLoader("/config/discord/src/messages"),
+            loader=FileSystemLoader("/config/discord/leaderboard/messages"),
             auto_reload=True,
             trim_blocks=True,
             lstrip_blocks=True,
