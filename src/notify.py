@@ -67,11 +67,11 @@ def create_periodic(scores, clock):
             yield Winning(users=users)
 
 
-def count_finish(notifications):
+def count_finish(scores):
     return sum(
         1
-        for notification in notifications
-        if isinstance(notification, (Win, FinishPlace))
+        for user, score in scores.items()
+        if score == 100
     )
 
 
@@ -116,7 +116,7 @@ def create_progress(new_scores, previous_scores, acc_notifications):
             yield Setback(user)
 
         if previous_score < 100 and score == 100:
-            place = count_finish(acc_notifications) + 1
+            place = count_finish(previous_scores) + 1
             if place <= 3:
                 yield Win(user=user, place=place)
             else:

@@ -105,6 +105,27 @@ class TestNotify(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(list(progress), expected_progress)
 
+    def test_create_progress_win_not_acumulated(self):
+        acc_notifications = []
+        previous_scores = {
+            "user1": 0,
+            "user2": 90,
+            "user3": 100,
+        }
+        new_scores = {
+            "user1": 100,
+            "user2": 100,
+            "user3": 100,
+        }
+
+        progress = create_progress(new_scores, previous_scores, acc_notifications)
+        expected_progress = [
+            Win(user="user1", place=2),
+            Win(user="user2", place=2),
+        ]
+
+        self.assertEqual(list(progress), expected_progress)
+
     def test_create_progress_finish(self):
         acc_notifications = [
             Win(user="user1", place=1),
