@@ -11,7 +11,10 @@ from bot.session import Chart
 from bot.session_manager import SessionManager
 from chart import convert_svg_png
 from bot.discrd.render.chart import SVGChartEnv as ChartRenderEnv
-from bot.discrd.render.text_message import DiscordEnv as DiscordRenderEnv, DiscordTextMessage
+from bot.discrd.render.text_message import (
+    DiscordEnv as DiscordRenderEnv,
+    DiscordTextMessage,
+)
 from users import get_users as get_os_users
 from utils import run_in_executor
 
