@@ -13,6 +13,6 @@
   9. Imprime o numero total de utilizadores
   10. Imprime o numero de vezes que o utilizador Zilcell avaliou um jogo com a nota menor ou igual a 6.
   11. Imprime o nome do utilizador que avaliou mais jogos.
-  12. Imprime a consola favorita dos utilizadores. A consola favorita e a consola que o utilizadores deram mais notas a jogos.
+  12. Imprime a plataforma favorita dos utilizadores. A plataforma favorita e a que o utilizadores deram mais notas a jogos.
   13. Imprime a consola favorita do utilizador Zilcell. 
   14. Imprime o numero de jogos open world que o utilizador Shadow1 avaliou. Usa os ficheiros que criaste anteriormente jogos_open_world e jogos_shadow. Lembra-te que cat pode ser usado para juntar varios ficheiros.
