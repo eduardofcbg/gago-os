@@ -1,12 +1,11 @@
 from jinja2 import Environment, FileSystemLoader
 
 
-class SVGChartEnv:
-    def __init__(self, session):
-        self.session = session
+class ChartRenderer:
+    def __init__(self):
         self.template_env = Environment(
             loader=FileSystemLoader("/config/discord/leaderboard"),
-            auto_reload=True,
+            auto_reload=False,
         )
         self.template_env.filters["mention"] = self._mention
         self.template_env.filters["avatar_url"] = self._avatar_url
@@ -25,7 +24,8 @@ class SVGChartEnv:
         else:
             return None
 
-    def render(self, **props):
+    def render(self, session, scores):
+        self.session = session
         template = self.template_env.get_template("chart.svg")
 
-        return template.render(props)
+        return template.render(scores=scores)

@@ -68,11 +68,7 @@ def create_periodic(scores, clock):
 
 
 def count_finish(scores):
-    return sum(
-        1
-        for user, score in scores.items()
-        if score == 100
-    )
+    return sum(1 for user, score in scores.items() if score == 100)
 
 
 def count_headstart(notifications):

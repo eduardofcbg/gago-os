@@ -3,21 +3,11 @@ from dataclasses import asdict
 from jinja2 import Environment, FileSystemLoader
 
 
-class DiscordTextMessage:
-    def __init__(self, env, notification):
-        self.env = env
-        self.notification = notification
-
-    def __str__(self):
-        return self.env.render(self.notification)
-
-
-class DiscordEnv:
-    def __init__(self, session):
-        self.session = session
+class MessageRenderer:
+    def __init__(self):
         self.template_env = Environment(
             loader=FileSystemLoader("/config/discord/leaderboard/messages"),
-            auto_reload=True,
+            auto_reload=False,
             trim_blocks=True,
             lstrip_blocks=True,
         )
@@ -30,7 +20,8 @@ class DiscordEnv:
         else:
             return user
 
-    def render(self, message):
+    def render(self, session, message):
+        self.session = session
         template = self.template_env.get_template(type(message).__name__)
         props = asdict(message)
 

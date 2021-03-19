@@ -10,17 +10,17 @@ from discord.ext.commands import Bot, Group, Command
 from bot.session import Chart
 from bot.session_manager import SessionManager
 from chart import convert_svg_png
-from bot.discrd.render.chart import SVGChartEnv as ChartRenderEnv
-from bot.discrd.render.text_message import (
-    DiscordEnv as DiscordRenderEnv,
-    DiscordTextMessage,
-)
+from bot.discrd.render.chart import ChartRenderer
+from bot.discrd.render.text_message import MessageRenderer
 from users import get_users as get_os_users
 from utils import run_in_executor
 
 
 users = get_os_users()
 session_manager = SessionManager(users)
+
+chart_renderer = ChartRenderer()
+message_renderer = MessageRenderer()
 
 
 @dataclass
@@ -30,9 +30,7 @@ class SubcommandNotFound:
 
 @run_in_executor
 def create_chart_file(session, chart_scores):
-    chart_render_env = ChartRenderEnv(session)
-
-    svg_text = chart_render_env.render(scores=chart_scores)
+    svg_text = chart_renderer.render(session, scores=chart_scores)
     png_bytes = convert_svg_png(svg_text)
 
     return discord.File(io.BytesIO(png_bytes), filename="chart.png")
@@ -43,8 +41,7 @@ async def format_message(notification, session=None):
         return await create_chart_file(session, notification.chart_scores)
 
     else:
-        discord_render_env = DiscordRenderEnv(session)
-        return DiscordTextMessage(discord_render_env, notification)
+        return message_renderer.render(session, notification)
 
 
 async def gago(ctx, subcommand):
@@ -147,7 +144,7 @@ group.add_command(Command(stop, checks=[is_admin]))
 group.add_command(Command(periodic, checks=[is_admin]))
 group.add_command(Command(set_user, name="user", aliases=("setuser",)))
 group.add_command(Command(show_users, name="users"))
-group.add_command(Command(chart, aliases=("scores", "src")))
+group.add_command(Command(chart, aliases=("scores", "leaderboard")))
 
 bot.add_command(group)
 

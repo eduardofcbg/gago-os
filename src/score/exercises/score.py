@@ -1,5 +1,6 @@
 import asyncio
 
+from utils import run_in_executor
 from score.exercises.vim import score as score_vim
 from score.exercises.navigation import score as score_navigation
 from score.exercises.scripting1.score import score as score_scripting1
@@ -13,6 +14,12 @@ score_exercise_sync = {
     "scripting1": score_scripting1,
     "scripting2": score_scripting2,
 }
+
+
+@run_in_executor
+def score_sync(score_fn, users):
+    return dict(zip(users, map(score_fn, users)))
+
 
 score_exercise_async = {"http_server": score_http_server}
 
@@ -37,4 +44,4 @@ async def score(exercise, users=None):
     else:
         score_fn = score_exercise_sync[exercise]
 
-        return dict(zip(users, map(score_fn, users)))
+        return await score_sync(score_fn, users)
