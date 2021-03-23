@@ -7,20 +7,20 @@ from dataclasses import dataclass
 import discord
 from discord.ext.commands import Bot, Group, Command
 
+from utils import run_in_executor
 from bot.session import Chart
 from bot.session_manager import SessionManager
 from chart import convert_svg_png
 from bot.discrd.render.chart import ChartRenderer
-from bot.discrd.render.text_message import MessageRenderer
+from bot.discrd.render.text_message import TextMessageRenderer
 from users import get_users as get_os_users
-from utils import run_in_executor
 
 
 users = get_os_users()
 session_manager = SessionManager(users)
 
 chart_renderer = ChartRenderer()
-message_renderer = MessageRenderer()
+message_renderer = TextMessageRenderer()
 
 
 @dataclass
@@ -29,8 +29,7 @@ class SubcommandNotFound:
 
 
 @run_in_executor
-def create_chart_file(session, chart_scores):
-    svg_text = chart_renderer.render(session, scores=chart_scores)
+def create_chart_file(svg_text):
     png_bytes = convert_svg_png(svg_text)
 
     return discord.File(io.BytesIO(png_bytes), filename="chart.png")
@@ -38,10 +37,12 @@ def create_chart_file(session, chart_scores):
 
 async def format_message(notification, session=None):
     if isinstance(notification, Chart):
-        return await create_chart_file(session, notification.chart_scores)
+        chart_scores = notification.chart_scores
+        svg_text = await chart_renderer.render(session, scores=chart_scores)
+        return await create_chart_file(svg_text)
 
     else:
-        return message_renderer.render(session, notification)
+        return await message_renderer.render(session, notification)
 
 
 async def gago(ctx, subcommand):

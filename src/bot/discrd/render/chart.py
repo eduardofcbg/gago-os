@@ -6,6 +6,7 @@ class ChartRenderer:
         self.template_env = Environment(
             loader=FileSystemLoader("/config/discord/leaderboard"),
             auto_reload=False,
+            enable_async=True,
         )
         self.template_env.filters["mention"] = self._mention
         self.template_env.filters["avatar_url"] = self._avatar_url
@@ -28,4 +29,4 @@ class ChartRenderer:
         self.session = session
         template = self.template_env.get_template("chart.svg")
 
-        return template.render(scores=scores)
+        return template.render_async(scores=scores)

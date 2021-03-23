@@ -3,11 +3,12 @@ from dataclasses import asdict
 from jinja2 import Environment, FileSystemLoader
 
 
-class MessageRenderer:
+class TextMessageRenderer:
     def __init__(self):
         self.template_env = Environment(
             loader=FileSystemLoader("/config/discord/leaderboard/messages"),
             auto_reload=False,
+            enable_async=True,
             trim_blocks=True,
             lstrip_blocks=True,
         )
@@ -25,4 +26,4 @@ class MessageRenderer:
         template = self.template_env.get_template(type(message).__name__)
         props = asdict(message)
 
-        return template.render(props)
+        return template.render_async(props)
