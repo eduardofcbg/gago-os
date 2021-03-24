@@ -60,12 +60,14 @@
         points="{{polygon_width / 2}} 0,{{bar_width - polygon_width / 2}} 0,{{bar_width}} {{polygon_height}},0 {{polygon_height}}"
         transform="translate(0, {{bar_y - polygon_height}})">  
       </polygon>
-
-      <image x="{{middle_x - avatar_size / 2}}"
-             y="{{bar_text_padding - avatar_size - 2 * bar_text_margin}}"
-             height="{{avatar_size}}"
-             width="{{avatar_size}}"
-             href="{{score.user | avatar_url}}"/>
+      
+      {% if avatar_url %} 
+	<image x="{{middle_x - avatar_size / 2}}"
+	       y="{{bar_text_padding - avatar_size - 2 * bar_text_margin}}"
+	       height="{{avatar_size}}"
+	       width="{{avatar_size}}"
+	       href="{{avatar_url}}"/>
+      {% endif %}
 
       <text class="user" dx="{{middle_x}}" y="{{bar_text_padding}}" text-anchor="middle">
           @{{score.user | mention}}

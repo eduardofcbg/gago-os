@@ -6,7 +6,7 @@ from score.exercises.navigation import score as score_navigation
 from score.exercises.scripting1.score import score as score_scripting1
 from score.exercises.scripting2.score import score as score_scripting2
 from score.exercises.http_server.score import score as score_http_server
-from users import get_users
+from users import get_users as get_os_users
 
 score_exercise_sync = {
     "vim": score_vim,
@@ -29,7 +29,7 @@ def is_valid_exercise(exercise):
 
 
 async def score(exercise, users=None):
-    users = users or get_users()
+    users = users or get_os_users()
 
     if not is_valid_exercise(exercise):
         raise ValueError(

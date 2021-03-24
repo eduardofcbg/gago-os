@@ -13,11 +13,15 @@ def chunks(l, n):
         yield l[i::n]
 
 
+def create_title(name, score):
+    return f"{name} ({score}xp)"
+
+
 def create_ui(scores):
     dsc_scores = sorted(scores.items(), key=itemgetter(1), reverse=True)
 
     gauges = [
-        HGauge(val=score, title=name, border_color=5, color=5)
+        HGauge(val=score, title=create_title(name, score), border_color=5, color=5)
         for name, score in dsc_scores
     ]
 
