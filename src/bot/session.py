@@ -149,7 +149,7 @@ class Session:
             try:
                 chart_scores = await self._get_chart_scores(self.exercise)
                 yield Chart(chart_scores=chart_scores)
-            except IOError as e:
+            except (IOError, OSError) as e:
                 logging.exception(e)
 
             async for notification in self.notifications:
@@ -162,7 +162,7 @@ class Session:
                     try:
                         chart_scores = await self._get_chart_scores(self.exercise)
                         yield Chart(chart_scores=chart_scores)
-                    except IOError as e:
+                    except (IOError, OSError) as e:
                         logging.exception(e)
 
     async def stop(self):

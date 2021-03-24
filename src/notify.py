@@ -146,7 +146,7 @@ async def pull_notifications(exercise, users=None):
 
             acc_notifications = [*acc_notifications, *notifications]
             previous_scores = new_scores
-        except IOError as e:
+        except (IOError, OSError) as e:
             logging.exception(e)
         finally:
             await asyncio.sleep(clock.sleep_time())
