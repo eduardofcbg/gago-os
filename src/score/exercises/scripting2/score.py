@@ -4,7 +4,10 @@ from score.execute.local import run_command
 def run_score_script(user, work_dir):
     command = f"/src/score/exercises/scripting2/score.sh {user} {work_dir}"
 
-    return int(run_command(command, cwd=work_dir))
+    try:
+        return int(run_command(command, cwd=work_dir))
+    except ValueError:
+        return 0
 
 
 def get_max_score():
