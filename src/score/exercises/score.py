@@ -1,3 +1,4 @@
+import logging
 import asyncio
 
 from utils import run_in_executor
@@ -16,12 +17,22 @@ score_exercise_sync = {
 }
 
 
+score_exercise_async = {"http_server": score_http_server}
+
+
 @run_in_executor
 def score_sync(score_fn, users):
-    return dict(zip(users, map(score_fn, users)))
+    def _score_return_exception(user):
+        try:
+            return score_fn(user)
+        except Exception as e:
+            return e
+
+    return dict(zip(users, map(_score_return_exception, users)))
 
 
-score_exercise_async = {"http_server": score_http_server}
+def score_async(score_fn, users):
+    return asyncio.gather(*map(score_fn, users), return_exceptions=True)
 
 
 def is_valid_exercise(exercise):
@@ -35,13 +46,25 @@ async def score(exercise, users=None):
         raise ValueError(
             f"Exercise {exercise} does not exist in {set(score_exercise_sync).union(score_exercise_async)}"
         )
-
+        
     if exercise in score_exercise_async:
         score_fn = score_exercise_async[exercise]
-        scores = await asyncio.gather(*map(score_fn, users))
 
-        return dict(zip(users, scores))
+        user_result =  await score_async(score_fn, users)
     else:
         score_fn = score_exercise_sync[exercise]
 
-        return await score_sync(score_fn, users)
+        user_result =  score_sync(score_fn, users)
+
+    user_score = {}
+
+    for user, result in user_score.items():
+        if isinstance(result, Exception):
+            ex = result
+            logging.exception(ex)
+        else:
+            score = result
+            user_score[user] = score
+
+    return user_score
+ 

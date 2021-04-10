@@ -211,3 +211,14 @@ class TestNotify(unittest.IsolatedAsyncioTestCase):
         periodic = create_periodic(new_scores, clock)
 
         self.assertCountEqual(list(periodic), [Winning(users=["user2", "user3"])])
+
+    def test_create_periodic_tie(self):
+        new_scores = {"user1": 50, "user2": 50, "user3": 50, "user4": 50}
+        clock = Clock()
+        clock.set_delta(minutes=1)
+        clock.tick(20)
+
+        periodic = create_periodic(new_scores, clock)
+
+        self.assertCountEqual(list(periodic), [])
+
