@@ -46,15 +46,15 @@ async def score(exercise, users=None):
         raise ValueError(
             f"Exercise {exercise} does not exist in {set(score_exercise_sync).union(score_exercise_async)}"
         )
-        
+
     if exercise in score_exercise_async:
         score_fn = score_exercise_async[exercise]
 
-        user_result =  await score_async(score_fn, users)
+        user_result = await score_async(score_fn, users)
     else:
         score_fn = score_exercise_sync[exercise]
 
-        user_result =  score_sync(score_fn, users)
+        user_result = await score_sync(score_fn, users)
 
     user_score = {}
 
@@ -67,4 +67,3 @@ async def score(exercise, users=None):
             user_score[user] = score
 
     return user_score
- 

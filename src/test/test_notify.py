@@ -221,4 +221,3 @@ class TestNotify(unittest.IsolatedAsyncioTestCase):
         periodic = create_periodic(new_scores, clock)
 
         self.assertCountEqual(list(periodic), [])
-

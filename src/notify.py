@@ -58,7 +58,13 @@ class Surpass:
 def winning_users(scores):
     max_score = max(scores.values())
     tie = all(score == max_score for score in scores.values())
-    return [] if tie else [user for user, score in scores.items() if score > 0 and score == max_score]
+    return (
+        []
+        if tie
+        else [
+            user for user, score in scores.items() if score > 0 and score == max_score
+        ]
+    )
 
 
 def create_periodic(scores, clock):
