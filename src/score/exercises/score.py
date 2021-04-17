@@ -20,7 +20,6 @@ score_exercise_sync = {
 score_exercise_async = {"http_server": score_http_server}
 
 
-@run_in_executor
 def score_sync(score_fn, users):
     def _score_return_exception(user):
         try:
@@ -54,11 +53,11 @@ async def score(exercise, users=None):
     else:
         score_fn = score_exercise_sync[exercise]
 
-        user_result = await score_sync(score_fn, users)
+        user_result = await run_in_executor(score_sync)(score_fn, users)
 
     user_score = {}
 
-    for user, result in user_score.items():
+    for user, result in user_result.items():
         if isinstance(result, Exception):
             ex = result
             logging.exception(ex)
