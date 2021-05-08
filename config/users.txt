@@ -21,8 +21,6 @@ renato
 goncalo
 eduardo
 neves
-caio
-alex
 torre
 tiagofarinha
 gadelhas
@@ -36,3 +34,16 @@ teixeira
 zezoca
 fortunas
 nogueira
+caio
+alex
+moita
+oliveira
+costa
+borges
+antunes
+boia
+serra
+marcos
+silva
+brasetagay
+goncalves
