@@ -1,4 +1,4 @@
 #!/bin/bash
 
 docker-compose rm -fs
-docker-compose up --build "$@"
+docker-compose up --build -d "$@"
