@@ -20,7 +20,6 @@ services:
       - ./etc/group:/opt/etc/group
       - ./etc/gshadow:/opt/etc/gshadow
       - ./snapshots:/snapshots
-    restart: unless-stopped
   discord:
     build:
       context: .
@@ -36,4 +35,3 @@ services:
       - ./src:/src
       - ./home:/home
       - ./config:/config
-    restart: unless-stopped
