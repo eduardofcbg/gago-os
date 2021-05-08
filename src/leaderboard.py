@@ -25,7 +25,7 @@ def create_ui(scores):
         for name, score in dsc_scores
     ]
 
-    max_height = 20
+    max_height = 10
     number_columns = int(len(gauges) / max_height) + 1
 
     columns = (VSplit(*chunk) for chunk in chunks(gauges, number_columns))
